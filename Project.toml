@@ -3,8 +3,16 @@ uuid = "63d7f14d-ed93-5bb2-a437-c14ddc966d3c"
 authors = ["Théo Galy-Fajou <theo.galyfajou@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+ModelContextProtocol = "ff0c7d00-be01-4363-bbd0-b79b98d6c3d1"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Preferences = "21216c6a-2e73-6563-6e65-726566657250"
+TestPicker = "a64165b9-4409-4de6-85cd-a4e0953bae44"
+
 [workspace]
 projects = ["test", "docs"]
 
 [compat]
+TestPicker = "2"
 julia = "1.10"
