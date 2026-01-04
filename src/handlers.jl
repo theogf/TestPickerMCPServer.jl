@@ -1,10 +1,4 @@
 """
-Handler functions for MCP tools.
-
-Each handler receives parameters as Dict{String,Any} and returns Content objects.
-"""
-
-"""
     handle_list_test_files(params::Dict{String,Any}) -> Content
 
 List all test files in the current package, optionally filtered by query.
@@ -32,15 +26,18 @@ function handle_list_test_blocks(params::Dict{String,Any})
             try
                 for block in TestPicker.get_testblocks(INTERFACES, joinpath(test_dir, file))
                     info = block.info
-                    push!(blocks, Dict(
-                        "label" => info.label,
-                        "file" => relpath(info.file_name, test_dir),
-                        "line_start" => info.line_start,
-                        "line_end" => info.line_end
-                    ))
+                    push!(
+                        blocks,
+                        Dict(
+                            "label" => info.label,
+                            "file" => relpath(info.file_name, test_dir),
+                            "line_start" => info.line_start,
+                            "line_end" => info.line_end,
+                        ),
+                    )
                 end
             catch e
-                @warn "Failed to parse $file" exception=e
+                @warn "Failed to parse $file" exception = e
             end
         end
 
@@ -59,11 +56,13 @@ function handle_run_all_tests(params::Dict{String,Any})
         TestPicker.run_test_files([joinpath(test_dir, f) for f in files], SERVER_PKG[])
 
         results = parse_results_file(SERVER_PKG[])
-        to_json(Dict(
-            "status" => "completed",
-            "files_run" => length(files),
-            "failures" => results["count"]["total"]
-        ))
+        to_json(
+            Dict(
+                "status" => "completed",
+                "files_run" => length(files),
+                "failures" => results["count"]["total"],
+            ),
+        )
     end
 end
 
@@ -77,11 +76,14 @@ function handle_run_test_files(params::Dict{String,Any})
         query = get(params, "query", "")
         isempty(query) && return TextContent(text = "Error: query required")
 
-        mode, root, files = TestPicker.select_test_files(query, SERVER_PKG[]; interactive=false)
+        mode, root, files =
+            TestPicker.select_test_files(query, SERVER_PKG[]; interactive = false)
         isempty(files) && return TextContent(text = "No matches for '$query'")
 
         TestPicker.run_test_files(files, SERVER_PKG[])
-        to_json(Dict("status" => "completed", "files_run" => [relpath(f, root) for f in files]))
+        to_json(
+            Dict("status" => "completed", "files_run" => [relpath(f, root) for f in files]),
+        )
     end
 end
 
@@ -99,7 +101,7 @@ function handle_run_test_blocks(params::Dict{String,Any})
             INTERFACES,
             get(params, "file_query", ""),
             testset_query;
-            interactive=false
+            interactive = false,
         )
 
         to_json(Dict("status" => "completed"))

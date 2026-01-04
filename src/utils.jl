@@ -1,10 +1,4 @@
 """
-Utility functions for TestPickerMCPServer.
-
-Provides JSON conversion, results parsing, error handling, and package detection.
-"""
-
-"""
     detect_package() -> PackageSpec
 
 Detect the current Julia package using TestPicker's current_pkg().
@@ -60,11 +54,7 @@ function parse_results_file(pkg::PackageSpec)
         return Dict(
             "failures" => [],
             "errors" => [],
-            "count" => Dict(
-                "failures" => 0,
-                "errors" => 0,
-                "total" => 0
-            )
+            "count" => Dict("failures" => 0, "errors" => 0, "total" => 0),
         )
     end
 
@@ -86,7 +76,7 @@ function parse_results_file(pkg::PackageSpec)
             "test" => test_expr,
             "file" => source,
             "error" => preview,
-            "context" => context
+            "context" => context,
         )
 
         # Heuristic: errors typically have stack traces with [1], [2], etc.
@@ -104,8 +94,8 @@ function parse_results_file(pkg::PackageSpec)
         "count" => Dict(
             "failures" => length(failures),
             "errors" => length(errors),
-            "total" => length(failures) + length(errors)
-        )
+            "total" => length(failures) + length(errors),
+        ),
     )
 end
 
@@ -119,7 +109,7 @@ function with_error_handling(f::Function, operation::String)
         return f()
     catch e
         msg = "Error in $operation: $e"
-        @error msg exception=(e, catch_backtrace())
+        @error msg exception = (e, catch_backtrace())
         return TextContent(text = msg)
     end
 end

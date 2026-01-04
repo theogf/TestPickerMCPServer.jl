@@ -1,7 +1,8 @@
 [deps]
-TestPickerMCPServer = "63d7f14d-ed93-5bb2-a437-c14ddc966d3c"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+ModelContextProtocol = "c58f755f-f2a7-4f48-bf29-4e9659b78499"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[sources]
-TestPickerMCPServer = {path = ".."}
+[sources.TestPickerMCPServer]
+path = ".."
