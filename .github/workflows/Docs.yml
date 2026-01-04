@@ -4,19 +4,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "docs/**"
-      - "src/**"
-      - "*.toml"
     tags: ["*"]
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "docs/**"
-      - "src/**"
-      - "*.toml"
-    types: [opened, synchronize, reopened]
 
 concurrency:
   # Skip intermediate builds: always.
