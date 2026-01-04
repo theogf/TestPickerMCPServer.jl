@@ -42,7 +42,7 @@ Exposes 6 MCP tools for testing Julia packages:
 
 ## Configuration
 
-**Preferences (persistent):**
+**Preferences (persistent for the repository):**
 ```julia
 using Preferences
 set_preferences!(TestPickerMCPServer, "transport" => "http", "port" => 3000)

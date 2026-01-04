@@ -6,34 +6,31 @@ MCP (Model Context Protocol) server for TestPicker.jl.
 Exposes Julia testing functionality via MCP, enabling LLMs to discover,
 run, and inspect tests programmatically.
 
-# Environment Variables
-- `TESTPICKER_MCP_TRANSPORT`: Transport type ("stdio" or "http", default: "stdio")
-- `TESTPICKER_MCP_HOST`: HTTP server host (default: "127.0.0.1")
-- `TESTPICKER_MCP_PORT`: HTTP server port (default: "3000")
-
 # Usage
 ```julia
 using TestPickerMCPServer
-start_server()  # Blocks and runs the MCP server
+TestPickerMCPServer.start_server()  # Blocks and runs the MCP server
 ```
 
 Or via command line:
 ```bash
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project -e 'using TestPickerMCPServer; TestPickerMCPServer.start_server()'
 ```
+
+See docs for the type of transports and other config parameters.
 """
 module TestPickerMCPServer
 
 # Dependencies
 using ModelContextProtocol
 using TestPicker
+using TestPicker: INTERFACES
 using Pkg: PackageSpec
 using JSON
 using Preferences
 
-# Module state: package and TestPicker interfaces
+"Cache the current package in use."
 const SERVER_PKG = Ref{Union{Nothing,PackageSpec}}(nothing)
-const INTERFACES = TestPicker.INTERFACES
 
 # Include source files
 include("utils.jl")
@@ -50,12 +47,9 @@ function get_config(key::String, default)
     pref = @load_preference(key, nothing)
     pref !== nothing && return pref
 
-    # 2. Fall back to environment variable
+    # 2. Fall back to environment variable or default
     env_key = "TESTPICKER_MCP_$(uppercase(key))"
-    haskey(ENV, env_key) && return ENV[env_key]
-
-    # 3. Use default
-    return default
+    get(ENV, env_key, default)
 end
 
 """
@@ -99,7 +93,7 @@ function start_server()
         name = "testpicker",
         version = "0.1.0",
         description = "MCP interface for TestPicker.jl",
-        tools = ALL_TOOLS
+        tools = ALL_TOOLS,
     )
 
     # Get configuration with Preferences > ENV > defaults
@@ -110,15 +104,14 @@ function start_server()
         host = string(get_config("host", "127.0.0.1"))
         port = parse(Int, string(get_config("port", "3000")))
 
-        transport = HttpTransport(host = host, port = port)
+        transport = HttpTransport(; host, port)
         server.transport = transport
         connect(transport)
-        start!(server; transport = transport)
+        start!(server; transport)
     else
-        start!(server)  # Stdio is default
+        start!(server)
     end
 end
 
-export start_server
 
 end # module

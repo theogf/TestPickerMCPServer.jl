@@ -50,7 +50,7 @@ end
 
 Run the entire test suite for the current package.
 """
-function handle_run_all_tests(params::Dict{String,Any})
+function handle_run_all_tests(::Dict{String,Any})
     with_error_handling("run_all_tests") do
         test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
         TestPicker.run_test_files([joinpath(test_dir, f) for f in files], SERVER_PKG[])
@@ -76,16 +76,27 @@ function handle_run_test_files(params::Dict{String,Any})
         query = get(params, "query", "")
         isempty(query) && return TextContent(text = "Error: query required")
 
-        # Get all test files and filter by query
-        test_dir, all_files = TestPicker.get_test_files(SERVER_PKG[])
-        files = filter_files(all_files, query)
-        isempty(files) && return TextContent(text = "No matches for '$query'")
+        # Run test files matching query
+        results = TestPicker.fzf_testfile(query; interactive = false)
 
-        # Run the matched files
-        abs_files = [joinpath(test_dir, f) for f in files]
-        TestPicker.run_test_files(abs_files, SERVER_PKG[])
+        # Handle case where no results (returns nothing)
+        isnothing(results) && return to_json(Dict("status" => "completed", "files_run" => [], "count" => 0))
 
-        to_json(Dict("status" => "completed", "files_run" => files))
+        # Extract file information from EvalResults
+        files_run = map(results) do r
+            # Handle different result types (EvalResult, EmptyFile, MissingFileException)
+            if r isa TestPicker.EvalResult
+                Dict(
+                    "filename" => r.info.filename,
+                    "success" => r.success,
+                )
+            else
+                # For error cases (EmptyFile, MissingFileException)
+                Dict("error" => string(r))
+            end
+        end
+
+        to_json(Dict("status" => "completed", "files_run" => files_run, "count" => length(files_run)))
     end
 end
 
@@ -99,14 +110,27 @@ function handle_run_test_blocks(params::Dict{String,Any})
         testset_query = get(params, "testset_query", "")
         isempty(testset_query) && return TextContent(text = "Error: testset_query required")
 
-        TestPicker.fzf_testblock(
+        results = TestPicker.fzf_testblock(
             INTERFACES,
             get(params, "file_query", ""),
             testset_query;
             interactive = false,
         )
 
-        to_json(Dict("status" => "completed"))
+        # Handle case where no results (returns nothing)
+        isnothing(results) && return to_json(Dict("status" => "completed", "blocks_run" => [], "count" => 0))
+
+        # Extract block information from EvalResults
+        blocks_run = [
+            Dict(
+                "label" => r.info.label,
+                "filename" => r.info.filename,
+                "line" => r.info.line,
+                "success" => r.success,
+            ) for r in results
+        ]
+
+        to_json(Dict("status" => "completed", "blocks_run" => blocks_run, "count" => length(blocks_run)))
     end
 end
 

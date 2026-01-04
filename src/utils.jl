@@ -28,7 +28,7 @@ end
 
 Convert data to JSON and wrap in TextContent. DRY helper for all handlers.
 """
-to_json(data) = TextContent(text = JSON.json(data))
+to_json(data) = TextContent(; text = JSON.json(data))
 
 """
     filter_files(files::Vector{String}, query::String) -> Vector{String}
@@ -110,6 +110,6 @@ function with_error_handling(f::Function, operation::String)
     catch e
         msg = "Error in $operation: $e"
         @error msg exception = (e, catch_backtrace())
-        return TextContent(text = msg)
+        return TextContent(; text = msg)
     end
 end
