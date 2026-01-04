@@ -228,6 +228,110 @@ julia --project -e 'using TestPickerMCPServer; start_server()' 2>&1 | tee server
 2. Missing dependencies → Run `Pkg.instantiate()`
 3. Syntax errors in tests → Check test files independently
 
+## Making Claude Code Prefer TestPicker Tools
+
+By default, Claude Code may choose to run tests using `julia -e 'Pkg.test()'` instead of the testpicker MCP tools. Here's how to ensure it consistently uses the testpicker tools:
+
+### Method 1: CLAUDE.md File (Most Effective)
+
+Create a `.claude/CLAUDE.md` or `.claude/CLAUDE.local.md` file in your project root with explicit instructions:
+
+```markdown
+# Test Picking with TestPicker MCP
+
+When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
+- Use `mcp__testpicker__run_test_files` to run specific test files
+- Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
+- Use `mcp__testpicker__list_test_files` to discover test files
+- Use `mcp__testpicker__list_test_blocks` to find @testset blocks
+- Use `mcp__testpicker__run_all_tests` to run the entire test suite
+- Use `mcp__testpicker__get_test_results` to see detailed failures
+
+Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
+```
+
+**Why this works:** Claude Code reads CLAUDE.md files as context and uses them to inform tool selection decisions. This is the most reliable way to guide Claude's behavior.
+
+### Method 2: Auto-Approval in Settings
+
+In `.claude/settings.json`, configure automatic approval for the testpicker server:
+
+```json
+{
+  "enabledMcpjsonServers": ["testpicker"],
+  "enableAllProjectMcpServers": true
+}
+```
+
+This removes permission prompts and makes MCP tools easier to use.
+
+### Method 3: Create a Skill
+
+Create a `.claude/skills/test.yaml` file that wraps testpicker functionality:
+
+```yaml
+name: test
+description: Run tests using TestPicker MCP tools
+prompt: |
+  When the user asks to run tests, use the testpicker MCP server tools:
+  - list_test_files to discover tests
+  - run_test_files to run specific files (accepts fuzzy queries)
+  - run_test_blocks to run specific @testset blocks
+  - get_test_results to show failures
+
+  Always prefer these MCP tools over running Pkg.test() directly.
+```
+
+Then you can simply type `/test` in Claude Code to activate test-picking mode.
+
+### Method 4: Explicit Prompts
+
+When asking Claude to run tests, be explicit about using testpicker:
+
+```
+Run the authentication tests using the testpicker tool
+```
+
+```
+Use testpicker to list all test files
+```
+
+### Why Tool Selection Matters
+
+Claude Code doesn't have built-in "tool preferences" settings. Instead, it chooses tools based on:
+
+1. **Semantic understanding** of your request
+2. **Tool availability** and context
+3. **Instructions in CLAUDE.md** (most influential)
+4. **Explicit references** in your prompts
+
+The CLAUDE.md approach is most effective because it provides persistent context that guides all of Claude's decisions in your project.
+
+### Complete Setup Example
+
+For best results, combine multiple methods:
+
+```bash
+# 1. Create CLAUDE.md with testpicker preferences
+cat > .claude/CLAUDE.md << 'EOF'
+# Test Picking with TestPicker MCP
+
+Always use testpicker MCP tools for running tests in this Julia package.
+EOF
+
+# 2. Configure auto-approval
+cat > .claude/settings.json << 'EOF'
+{
+  "enabledMcpjsonServers": ["testpicker"],
+  "enableAllProjectMcpServers": true
+}
+EOF
+
+# 3. Add testpicker to project MCP config
+claude mcp add --transport stdio testpicker --scope project -- \
+  julia --startup-file=no --project -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
+```
+
 ## Best Practices
 
 1. **Set `cwd` in config** - Don't rely on current directory
@@ -235,6 +339,7 @@ julia --project -e 'using TestPickerMCPServer; start_server()' 2>&1 | tee server
 3. **One server per package** - Don't share across packages
 4. **Keep server running** - Faster responses in HTTP mode
 5. **Check server status** - Use `ps` to verify it's running
+6. **Add CLAUDE.md** - Guide Claude to prefer testpicker tools
 
 ## Example Session
 

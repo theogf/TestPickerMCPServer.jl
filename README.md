@@ -68,6 +68,33 @@ TESTPICKER_MCP_TRANSPORT=http TESTPICKER_MCP_PORT=3000 julia -e '...'
 
 See the [full documentation](https://theogf.github.io/TestPickerMCPServer.jl/dev) for details.
 
+## Making Claude Code Prefer TestPicker Tools
+
+To ensure Claude Code consistently uses the testpicker MCP tools instead of running `julia -e 'Pkg.test()'` directly:
+
+**Create `.claude/CLAUDE.md` in your project:**
+```markdown
+# Test Picking with TestPicker MCP
+
+When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
+- Use `mcp__testpicker__run_test_files` to run specific test files
+- Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
+- Use `mcp__testpicker__list_test_files` to discover test files
+- Use `mcp__testpicker__get_test_results` to see detailed failures
+
+Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
+```
+
+**Enable auto-approval in `.claude/settings.json`:**
+```json
+{
+  "enabledMcpjsonServers": ["testpicker"],
+  "enableAllProjectMcpServers": true
+}
+```
+
+See the [Claude Code integration docs](https://theogf.github.io/TestPickerMCPServer.jl/dev/claude-code/) for more details.
+
 ## Links
 
 - [TestPicker.jl](https://github.com/JuliaTesting/TestPicker.jl) - Fuzzy test picker for Julia
