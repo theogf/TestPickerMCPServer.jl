@@ -28,7 +28,7 @@ module TestPickerMCPServer
 using ModelContextProtocol
 using TestPicker
 using Pkg: PackageSpec
-using JSON3
+using JSON
 using Preferences
 
 # Module state: package and TestPicker interfaces

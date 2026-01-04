@@ -34,7 +34,7 @@ end
 
 Convert data to JSON and wrap in TextContent. DRY helper for all handlers.
 """
-to_json(data) = TextContent(text = JSON3.write(data))
+to_json(data) = TextContent(text = JSON.json(data))
 
 """
     filter_files(files::Vector{String}, query::String) -> Vector{String}

@@ -1,6 +1,6 @@
 using TestPickerMCPServer
 using Test
-using JSON3
+using JSON
 
 @testset "TestPickerMCPServer.jl" begin
     @testset "Utility Functions" begin
@@ -20,7 +20,7 @@ using JSON3
             result = TestPickerMCPServer.to_json(data)
 
             @test result isa ModelContextProtocol.TextContent
-            parsed = JSON3.read(result.text)
+            parsed = JSON.parse(result.text)
             @test parsed["key"] == "value"
             @test parsed["count"] == 42
         end
