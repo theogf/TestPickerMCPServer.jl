@@ -13,7 +13,8 @@ using ModelContextProtocol
 
         # Case-insensitive substring match
         @test TestPickerMCPServer.filter_files(files, "feature") == ["test_feature.jl"]
-        @test TestPickerMCPServer.filter_files(files, "test") == ["test_feature.jl", "test_utils.jl"]
+        @test TestPickerMCPServer.filter_files(files, "test") == ["test_feature.jl", "test_utils.jl", "runtests.jl"]
+        @test TestPickerMCPServer.filter_files(files, "utils") == ["test_utils.jl"]
     end
 
     @testset "to_json" begin

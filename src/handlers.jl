@@ -76,14 +76,16 @@ function handle_run_test_files(params::Dict{String,Any})
         query = get(params, "query", "")
         isempty(query) && return TextContent(text = "Error: query required")
 
-        mode, root, files =
-            TestPicker.select_test_files(query, SERVER_PKG[]; interactive = false)
+        # Get all test files and filter by query
+        test_dir, all_files = TestPicker.get_test_files(SERVER_PKG[])
+        files = filter_files(all_files, query)
         isempty(files) && return TextContent(text = "No matches for '$query'")
 
-        TestPicker.run_test_files(files, SERVER_PKG[])
-        to_json(
-            Dict("status" => "completed", "files_run" => [relpath(f, root) for f in files]),
-        )
+        # Run the matched files
+        abs_files = [joinpath(test_dir, f) for f in files]
+        TestPicker.run_test_files(abs_files, SERVER_PKG[])
+
+        to_json(Dict("status" => "completed", "files_run" => files))
     end
 end
 
