@@ -15,23 +15,20 @@ using Pkg
 Pkg.add("TestPickerMCPServer")
 ```
 
-**Start the server:**
+**Use with Claude Code:**
 ```bash
+# Terminal 1: Start server in your package
 cd your-julia-package
 julia --project -e 'using TestPickerMCPServer; start_server()'
+
+# Terminal 2: Launch Claude Code
+claude
 ```
 
-**Claude Desktop integration:**
-```json
-{
-  "mcpServers": {
-    "testpicker": {
-      "command": "julia",
-      "args": ["--project", "-e", "using TestPickerMCPServer; start_server()"]
-    }
-  }
-}
-```
+Then ask Claude Code:
+- "List all test files"
+- "Run the authentication tests"
+- "Show me test failures"
 
 ## What It Does
 
