@@ -6,7 +6,8 @@
       "args": [
         "--startup-file=no",
         "--project",
-        "-e 'using TestPickerMCPServer; TestPickerMCPServer.start_server()'"
+        "-e",
+        "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
       ],
       "env": {}
     }
