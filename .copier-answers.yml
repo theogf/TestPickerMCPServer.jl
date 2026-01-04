@@ -1,0 +1,39 @@
+# Changes here will be overwritten by Copier
+AddAllcontributors: false
+AddCitationCFF: false
+AddCodeOfConduct: false
+AddContributionDocs: false
+AddCopierCI: false
+AddDocs: true
+AddDocsCI: true
+AddFormatterAndLinterConfigFiles: true
+AddGitHubPRTemplate: false
+AddGitHubTemplates: false
+AddLintCI: false
+AddLychee: false
+AddMacToCI: false
+AddPrecommit: false
+AddTagBotCI: true
+AddTestCI: true
+AddWinToCI: false
+Authors: Théo Galy-Fajou <theo.galyfajou@gmail.com>
+CheckExplicitImports: false
+ConfigIndentation: 2
+GitHubActionVersionAutoUpdate: dependabot
+JuliaCompatAutoUpdate: dependabot
+JuliaIndentation: 4
+JuliaMinCIVersion: lts
+JuliaMinVersion: '1.10'
+License: MIT
+LicenseCopyrightHolders: Théo Galy-Fajou
+MarkdownIndentation: 2
+PackageName: TestPickerMCPServer
+PackageOwner: theogf
+PackageUUID: 63d7f14d-ed93-5bb2-a437-c14ddc966d3c
+RunJuliaNightlyOnCI: false
+StrategyConfirmIncluded: true
+StrategyLevel: 1
+StrategyReviewExcluded: false
+TestingStrategy: basic
+UseCirrusCI: false
+_src_path: /home/theo/.julia/packages/BestieTemplate/Jl0RV

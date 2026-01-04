@@ -1,0 +1,10 @@
+name = "TestPickerMCPServer"
+uuid = "63d7f14d-ed93-5bb2-a437-c14ddc966d3c"
+authors = ["Théo Galy-Fajou <theo.galyfajou@gmail.com>"]
+version = "0.1.0"
+
+[workspace]
+projects = ["test", "docs"]
+
+[compat]
+julia = "1.10"

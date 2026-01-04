@@ -1,0 +1,7 @@
+[deps]
+TestPickerMCPServer = "63d7f14d-ed93-5bb2-a437-c14ddc966d3c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
+[sources]
+TestPickerMCPServer = {path = ".."}
