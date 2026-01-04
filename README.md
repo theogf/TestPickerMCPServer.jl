@@ -16,16 +16,29 @@ Pkg.add("TestPickerMCPServer")
 ```
 
 **Use with Claude Code:**
-```bash
-# Terminal 1: Start server in your package
-cd your-julia-package
-julia --project -e 'using TestPickerMCPServer; start_server()'
 
-# Terminal 2: Launch Claude Code
+Add the MCP server using the CLI:
+
+**Stdio transport (default):**
+```bash
+claude mcp add --transport stdio testpicker --scope project -- \
+  julia --startup-file=no --project -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
+```
+
+**HTTP transport:**
+```bash
+# First configure the server for HTTP (see Configuration section below)
+claude mcp add --transport http testpicker http://localhost:3000/mcp --scope project
+```
+
+Or manually add to `.mcp.json` in your project (see [claude_code_config.json](claude_code_config.json) for reference).
+
+Then in your Julia package directory:
+```bash
 claude
 ```
 
-Then ask Claude Code:
+Ask Claude Code:
 - "List all test files"
 - "Run the authentication tests"
 - "Show me test failures"
