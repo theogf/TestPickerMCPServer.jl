@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "testpicker": {
+      "type": "stdio",
+      "command": "julia",
+      "args": [
+        "--startup-file=no",
+        "--project",
+        "-e 'using TestPickerMCPServer; TestPickerMCPServer.start_server()'"
+      ],
+      "env": {}
+    }
+  }
+}
