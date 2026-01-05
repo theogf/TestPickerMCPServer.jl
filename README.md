@@ -9,9 +9,10 @@
 
 ## Quick Start
 
-**Installation:**
+**Recommended Installation:**
 ```julia
 using Pkg
+Pkg.activate("@mcp") # Separate global environment for MCPs
 Pkg.add("TestPickerMCPServer")
 ```
 
@@ -22,7 +23,7 @@ Add the MCP server using the CLI:
 **Stdio transport (default):**
 ```bash
 claude mcp add --transport stdio testpicker --scope project -- \
-  julia --startup-file=no --project -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
+  julia --startup-file=no --project=@mcp -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
 ```
 
 **HTTP transport:**
@@ -45,13 +46,14 @@ Ask Claude Code:
 
 ## What It Does
 
-Exposes 6 MCP tools for testing Julia packages:
+Exposes 7 MCP tools for testing Julia packages:
 - `list_test_files` - Discover test files
 - `list_test_blocks` - Find @testset blocks
 - `run_all_tests` - Run entire suite
 - `run_test_files` - Run specific files
 - `run_test_blocks` - Run specific testsets
 - `get_test_results` - Get failures/errors
+- `activate_package` - Switch to a different package directory (uses the current one by default)
 
 ## Configuration
 
@@ -67,23 +69,6 @@ TESTPICKER_MCP_TRANSPORT=http TESTPICKER_MCP_PORT=3000 julia -e '...'
 ```
 
 See the [full documentation](https://theogf.github.io/TestPickerMCPServer.jl/dev) for details.
-
-## Non-Invasive Installation (Recommended)
-
-For a cleaner setup that doesn't pollute your project environments, create a dedicated tools environment:
-
-```bash
-# 1. Create and set up tools environment
-mkdir -p ~/.julia/environments/mcp-tools
-julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
-
-# 2. Add to Claude Code (will pass package directory as argument)
-claude mcp add --transport stdio testpicker --scope project -- \
-  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
-  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
-```
-
-This keeps TestPickerMCPServer in a separate environment while still testing your project.
 
 ## Making Claude Code Prefer TestPicker Tools
 
