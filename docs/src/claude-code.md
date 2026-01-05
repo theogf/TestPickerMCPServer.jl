@@ -23,14 +23,35 @@ The server will be available as MCP tools in your Claude Code session.
 
 ## Configuration
 
-### Option 1: Stdio Transport (Recommended)
+### Recommended: Tools Environment (Non-Invasive)
+
+The cleanest approach is to install TestPickerMCPServer in a dedicated tools environment:
+
+```bash
+# 1. Create tools environment
+mkdir -p ~/.julia/environments/mcp-tools
+julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
+
+# 2. Add to Claude Code MCP config
+cd /path/to/your/julia/package
+claude mcp add --transport stdio testpicker --scope project -- \
+  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
+  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
+```
+
+This approach:
+- Keeps TestPickerMCPServer separate from your project dependencies
+- Works across all your Julia packages
+- Doesn't pollute your global environment
+
+### Option 1: Stdio Transport (Default Method)
 
 Claude Code works best with stdio transport (the default).
 
 **Start server in package directory:**
 ```bash
 cd ~/MyJuliaPackage
-julia --project=/path/to/TestPickerMCPServer -e 'using TestPickerMCPServer; start_server()'
+julia --project -e 'using TestPickerMCPServer; start_server()'
 ```
 
 ### Option 2: HTTP Transport
@@ -309,27 +330,18 @@ The CLAUDE.md approach is most effective because it provides persistent context 
 
 ### Complete Setup Example
 
-For best results, combine multiple methods:
-
 ```bash
-# 1. Create CLAUDE.md with testpicker preferences
-cat > .claude/CLAUDE.md << 'EOF'
-# Test Picking with TestPicker MCP
+# 1. Create tools environment (one-time)
+julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
 
-Always use testpicker MCP tools for running tests in this Julia package.
-EOF
-
-# 2. Configure auto-approval
-cat > .claude/settings.json << 'EOF'
-{
-  "enabledMcpjsonServers": ["testpicker"],
-  "enableAllProjectMcpServers": true
-}
-EOF
-
-# 3. Add testpicker to project MCP config
+# 2. In your package, add to MCP config
+cd /path/to/your/package
 claude mcp add --transport stdio testpicker --scope project -- \
-  julia --startup-file=no --project -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
+  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
+  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
+
+# 3. Add .claude/CLAUDE.md to prefer testpicker tools (recommended)
+echo "Always use testpicker MCP tools for running tests." > .claude/CLAUDE.md
 ```
 
 ## Best Practices

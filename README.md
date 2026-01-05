@@ -68,6 +68,23 @@ TESTPICKER_MCP_TRANSPORT=http TESTPICKER_MCP_PORT=3000 julia -e '...'
 
 See the [full documentation](https://theogf.github.io/TestPickerMCPServer.jl/dev) for details.
 
+## Non-Invasive Installation (Recommended)
+
+For a cleaner setup that doesn't pollute your project environments, create a dedicated tools environment:
+
+```bash
+# 1. Create and set up tools environment
+mkdir -p ~/.julia/environments/mcp-tools
+julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
+
+# 2. Add to Claude Code (will pass package directory as argument)
+claude mcp add --transport stdio testpicker --scope project -- \
+  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
+  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
+```
+
+This keeps TestPickerMCPServer in a separate environment while still testing your project.
+
 ## Making Claude Code Prefer TestPicker Tools
 
 To ensure Claude Code consistently uses the testpicker MCP tools instead of running `julia -e 'Pkg.test()'` directly:

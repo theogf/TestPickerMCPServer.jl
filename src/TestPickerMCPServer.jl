@@ -53,9 +53,13 @@ function get_config(key::String, default)
 end
 
 """
-    start_server()
+    start_server(pkg_dir::String=pwd())
 
-Start the TestPicker MCP server.
+Start the TestPicker MCP server for the specified package directory.
+
+# Arguments
+- `pkg_dir::String`: Path to the Julia package directory (defaults to current directory).
+  The package environment will be automatically activated.
 
 Configuration is read with the following precedence:
 1. **Preferences.jl** (persistent, set via `set_preferences!`)
@@ -68,6 +72,16 @@ Available settings:
 - `port`: HTTP port (default: 3000)
 
 # Examples
+
+Start server for current directory:
+```bash
+julia --project -e 'using TestPickerMCPServer; start_server()'
+```
+
+Start server for specific package (useful with tools environment):
+```bash
+julia --project=~/.julia/environments/mcp-tools -e 'using TestPickerMCPServer; start_server("/path/to/package")'
+```
 
 Using environment variables:
 ```bash
@@ -84,7 +98,12 @@ start_server()
 
 This function blocks until the server is stopped.
 """
-function start_server()
+function start_server(pkg_dir::String=pwd())
+    # Activate the package environment if a directory is specified
+    if pkg_dir != pwd()
+        activate_package(pkg_dir)
+    end
+
     # Detect and cache package
     SERVER_PKG[] = detect_package()
 
