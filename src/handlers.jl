@@ -144,3 +144,27 @@ function handle_get_test_results(params::Dict{String,Any})
         to_json(parse_results_file(SERVER_PKG[]))
     end
 end
+
+"""
+    handle_activate_package(params::Dict{String,Any}) -> Content
+
+Activate a different package directory and update the server's active package.
+"""
+function handle_activate_package(params::Dict{String,Any})
+    with_error_handling("activate_package") do
+        pkg_dir = get(params, "pkg_dir", "")
+        isempty(pkg_dir) && return TextContent(text = "Error: pkg_dir required")
+
+        # Activate the package environment
+        activate_package(pkg_dir)
+
+        # Re-detect and update the cached package
+        SERVER_PKG[] = detect_package()
+
+        to_json(Dict(
+            "status" => "success",
+            "pkg_dir" => pkg_dir,
+            "package_name" => SERVER_PKG[].name,
+        ))
+    end
+end

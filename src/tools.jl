@@ -108,6 +108,25 @@ const TOOL_GET_RESULTS = MCPTool(;
 )
 
 """
+Tool: activate_package
+
+Activate a different Julia package directory.
+"""
+const TOOL_ACTIVATE_PACKAGE = MCPTool(;
+    name = "activate_package",
+    description = "Activate a different Julia package directory and update the server's active package. Use this to switch between different packages without restarting the server.",
+    parameters = [
+        ToolParameter(;
+            name = "pkg_dir",
+            type = "string",
+            description = "Path to the Julia package directory to activate (required, e.g., '/path/to/package')",
+            required = true,
+        ),
+    ],
+    handler = handle_activate_package,
+)
+
+"""
 All tools exported by this module.
 """
 const ALL_TOOLS = [
@@ -117,4 +136,5 @@ const ALL_TOOLS = [
     TOOL_RUN_FILES,
     TOOL_RUN_BLOCKS,
     TOOL_GET_RESULTS,
+    TOOL_ACTIVATE_PACKAGE,
 ]
