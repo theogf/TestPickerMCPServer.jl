@@ -43,4 +43,4 @@ jobs:
           using Documenter: DocMeta, doctest
           using TestPickerMCPServer
           DocMeta.setdocmeta!(TestPicker, :DocTestSetup, :(using TestPickerMCPServer); recursive=true)
-          doctest(TestPicker)
+          doctest(TestPickerMCPServer)
