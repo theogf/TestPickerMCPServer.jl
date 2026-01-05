@@ -51,7 +51,7 @@ list_testfiles({})
 
 2. **List available testsets:**
 ```json
-list_test_blocks({})
+list_testblocks({})
 ```
 
 3. **Use simpler queries:**

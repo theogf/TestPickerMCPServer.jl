@@ -12,7 +12,7 @@ list_testfiles({})
 // Returns: {"files": ["runtests.jl", "test_feature.jl", "test_utils.jl"], ...}
 
 // Step 2: List testsets in a specific file
-list_test_blocks({"file_query": "feature"})
+list_testblocks({"file_query": "feature"})
 // Returns: {"test_blocks": [{"label": "Edge Cases", ...}, {"label": "Happy Path", ...}]}
 
 // Step 3: Run a specific testset
@@ -54,7 +54,7 @@ After making changes, verify specific functionality:
 
 ```json
 // List testsets related to the changed feature
-list_test_blocks({"file_query": ""})
+list_testblocks({"file_query": ""})
 // Scan for relevant testsets
 
 // Run only the relevant testsets
@@ -114,7 +114,7 @@ list_testfiles({})
 // Count how many test files you have
 
 // Get all testsets
-list_test_blocks({})
+list_testblocks({})
 // Analyze:
 // - How many testsets?
 // - What areas are tested?
@@ -141,7 +141,7 @@ Typical LLM-assisted testing session:
 **LLM uses tools:**
 ```json
 // 1. Find auth-related tests
-list_test_blocks({"file_query": ""})
+list_testblocks({"file_query": ""})
 // Finds: "Authentication Tests" in test_auth.jl
 
 // 2. Run those tests
@@ -162,9 +162,9 @@ Understanding what's tested:
 list_testfiles({})
 
 // 2. For each file, list its testsets
-list_test_blocks({"file_query": "auth"})
-list_test_blocks({"file_query": "utils"})
-list_test_blocks({"file_query": "api"})
+list_testblocks({"file_query": "auth"})
+list_testblocks({"file_query": "utils"})
+list_testblocks({"file_query": "api"})
 
 // 3. Identify gaps
 // - Are all modules tested?

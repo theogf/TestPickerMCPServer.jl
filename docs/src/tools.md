@@ -29,7 +29,7 @@ List all test files in the current package.
 
 ---
 
-## 2. list_test_blocks
+## 2. list_testblocks
 
 List all @testset blocks in test files.
 
@@ -195,7 +195,7 @@ Retrieve detailed failures and errors from the last test run.
 list_testfiles({})
 
 // 2. List testsets in specific file
-list_test_blocks({"file_query": "feature"})
+list_testblocks({"file_query": "feature"})
 
 // 3. Run specific testset
 run_testblocks({"file_query": "feature", "testset_query": "edge cases"})

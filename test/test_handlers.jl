@@ -42,10 +42,10 @@ end
         end
     end
 
-    @testset "handle_list_test_blocks" begin
+    @testset "handle_list_testblocks" begin
         # Test with empty file query
         with_tp_pkg() do
-            result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
+            result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
             @test haskey(parsed, "test_blocks")
@@ -53,7 +53,7 @@ end
             @test parsed["count"] >= 0
 
             # Test with file query
-            result = TestPickerMCPServer.handle_list_test_blocks(
+            result = TestPickerMCPServer.handle_list_testblocks(
                 Dict{String,Any}("file_query" => "utils"),
             )
             @test result isa ModelContextProtocol.TextContent

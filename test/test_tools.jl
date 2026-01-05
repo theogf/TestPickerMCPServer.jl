@@ -7,7 +7,7 @@ using Test
 
         tool_names = [tool.name for tool in TestPickerMCPServer.ALL_TOOLS]
         @test "list_testfiles" in tool_names
-        @test "list_test_blocks" in tool_names
+        @test "list_testblocks" in tool_names
         @test "run_all_tests" in tool_names
         @test "run_testfiles" in tool_names
         @test "run_testblocks" in tool_names

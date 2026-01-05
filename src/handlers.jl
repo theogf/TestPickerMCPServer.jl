@@ -15,12 +15,12 @@ function handle_list_testfiles(params::Dict{String,Any})
 end
 
 """
-    handle_list_test_blocks(params::Dict{String,Any}) -> Content
+    handle_list_testblocks(params::Dict{String,Any}) -> Content
 
 List all test blocks/testsets, optionally filtered by file query.
 """
-function handle_list_test_blocks(params::Dict{String,Any})
-    with_error_handling("list_test_blocks") do
+function handle_list_testblocks(params::Dict{String,Any})
+    with_error_handling("list_testblocks") do
         isnothing(SERVER_PKG[]) && error(
             "No package activated, make sure to give `start_server` a valid Project path.",
         )

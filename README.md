@@ -46,7 +46,7 @@ Or manually add to `.mcp.json` (see this minimal [.mcp.json](.mcp.json) for refe
 
 Exposes 7 MCP tools for testing Julia packages:
 - `list_testfiles` - Discover test files
-- `list_test_blocks` - Find @testset blocks
+- `list_testblocks` - Find @testset blocks
 - `run_all_tests` - Run entire suite
 - `run_testfiles` - Run specific files
 - `run_testblocks` - Run specific testsets

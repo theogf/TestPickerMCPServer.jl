@@ -89,7 +89,7 @@ end
     @testset "List test blocks workflow" begin
         with_tp_pkg() do
             # Get test blocks from all files
-            result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
+            result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
 
@@ -107,7 +107,7 @@ end
             end
 
             # Test filtering by file query
-            result = TestPickerMCPServer.handle_list_test_blocks(
+            result = TestPickerMCPServer.handle_list_testblocks(
                 Dict{String,Any}("file_query" => "utils"),
             )
             parsed = JSON.parse(result.text)
@@ -120,7 +120,7 @@ end
             end
 
             # Look for specific test blocks in test_tools.jl
-            result = TestPickerMCPServer.handle_list_test_blocks(
+            result = TestPickerMCPServer.handle_list_testblocks(
                 Dict{String,Any}("file_query" => "tools"),
             )
             parsed = JSON.parse(result.text)
@@ -218,7 +218,7 @@ end
     @testset "ALL_TOOLS completeness" begin
         expected_tools = [
             "list_testfiles",
-            "list_test_blocks",
+            "list_testblocks",
             "run_all_tests",
             "run_testfiles",
             "run_testblocks",
@@ -308,7 +308,7 @@ end
             end
 
             # 5. List available test blocks
-            result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
+            result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             parsed = JSON.parse(result.text)
             @test haskey(parsed, "test_blocks")
             @test haskey(parsed, "count")
@@ -331,8 +331,8 @@ end
 
             @test file_count == length(actual_files)
 
-            # Verify list_test_blocks uses same files
-            result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
+            # Verify list_testblocks uses same files
+            result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             parsed = JSON.parse(result.text)
 
             if parsed["count"] > 0
