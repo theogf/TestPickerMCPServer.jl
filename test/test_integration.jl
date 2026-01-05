@@ -138,7 +138,7 @@ end
         with_tp_pkg() do
             # Run a specific test file from this package
             result = TestPickerMCPServer.handle_run_testfiles(
-                Dict{String,Any}("query" => "test_tools"),
+                Dict{String,Any}("query" => "test_tools.jl"),
             )
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
@@ -158,6 +158,8 @@ end
 
     @testset "Test results workflow" begin
         with_tp_pkg() do
+            # Run a set of tests.
+            TestPicker.fzf_testfile("test_tools.jl"; interactive = false)
             # Get current test results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
