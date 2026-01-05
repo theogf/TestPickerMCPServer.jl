@@ -106,7 +106,7 @@ Run specific test file(s) matched by query.
 function handle_run_testfiles(params::Dict{String,Any})
     with_error_handling("run_testfiles") do
         query = get(params, "query", "")
-        isempty(query) && return error("query required")
+        isempty(query) && error("query required")
 
         isnothing(SERVER_PKG[]) && error(
             "No package activated, make sure to give `start_server` a valid Project path.",
@@ -148,7 +148,7 @@ Run specific test block(s) matched by queries.
 function handle_run_testblocks(params::Dict{String,Any})
     with_error_handling("run_testblocks") do
         testset_query = get(params, "testset_query", "")
-        isempty(testset_query) && return error("testset_query required")
+        isempty(testset_query) && error("testset_query required")
 
         isnothing(SERVER_PKG[]) && error(
             "No package activated, make sure to give `start_server` a valid Project path.",

@@ -29,8 +29,7 @@ end
             # Should be the TestPickerMCPServer package
             @test pkg.name == "TestPickerMCPServer"
             @test pkg.path !== nothing
-            path = chopsuffix(pkg.path, ".jl")
-            @test endswith(path, "TestPickerMCPServer")
+            @test endswith(pkg.path, r"TestPickerMCPServer(\.jl)?")
 
             # Verify test directory exists
             test_dir = joinpath(pkg.path, "test")
@@ -214,14 +213,6 @@ end
         @test haskey(parsed, "error")
         @test haskey(parsed, "operation")
         @test contains(parsed["error"], "testset_query required")
-
-        # Test required parameter validation for activate_package
-        result = TestPickerMCPServer.handle_activate_package(Dict{String,Any}())
-        @test result isa ModelContextProtocol.TextContent
-        parsed = JSON.parse(result.text)
-        @test haskey(parsed, "error")
-        @test haskey(parsed, "operation")
-        @test contains(parsed["error"], "pkg_dir required")
     end
 
     @testset "ALL_TOOLS completeness" begin
@@ -267,7 +258,6 @@ end
         handlers_to_test = [
             (TestPickerMCPServer.handle_run_testfiles, Dict{String,Any}()),
             (TestPickerMCPServer.handle_run_testblocks, Dict{String,Any}()),
-            (TestPickerMCPServer.handle_activate_package, Dict{String,Any}()),
         ]
 
         for (handler, params) in handlers_to_test

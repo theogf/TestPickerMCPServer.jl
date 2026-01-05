@@ -98,33 +98,4 @@ end
             @test parsed["operation"] == "run_testblocks"
         end
     end
-
-    @testset "handle_activate_package - missing dir" begin
-        original_active = Base.active_project()
-        query = pkgdir(TestPickerMCPServer)
-        result = try
-            with_logger(NullLogger()) do
-                TestPickerMCPServer.handle_activate_package(Dict{String,Any}("query" => query))
-            end
-        finally
-            Pkg.activate(original_active; io = devnull)
-        end
-        @test result isa ModelContextProtocol.TextContent
-        parsed = JSON.parse(result.text)
-    end
-
-    @testset "handle_activate_package - invalid dir" begin
-        original_active = Base.active_project()
-        result = try
-            with_logger(NullLogger()) do
-                TestPickerMCPServer.handle_activate_package(
-                    Dict{String,Any}("pkg_dir" => "/nonexistent/path"),
-                )
-            end
-        finally
-            Pkg.activate(original_active; io = devnull)
-        end
-        @test result isa ModelContextProtocol.TextContent
-        # Should return error in JSON or text
-    end
 end

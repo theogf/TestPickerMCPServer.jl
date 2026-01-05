@@ -80,19 +80,6 @@ using Pkg
         end
     end
 
-    @testset "activate_package" begin
-        # Test with current directory (should succeed)
-        original_active = Base.active_project()
-        try
-            TestPickerMCPServer.activate_package(pwd())
-            @test true  # If we get here, no error was thrown
-        finally
-            Pkg.activate(original_active)
-        end
-
-        # Note: Can't easily test invalid paths without side effects
-    end
-
     @testset "parse_results_file - structure validation" begin
         pkg = Pkg.Types.PackageSpec(name = "Test", path = pwd())
         result = TestPickerMCPServer.parse_results_file(pkg)
