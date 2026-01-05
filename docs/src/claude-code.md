@@ -11,7 +11,7 @@ cd /path/to/your/julia/package
 
 **2. Start the server:**
 ```bash
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
 **3. In another terminal, use Claude Code:**
@@ -23,51 +23,42 @@ The server will be available as MCP tools in your Claude Code session.
 
 ## Configuration
 
-### Recommended: Tools Environment (Non-Invasive)
+### Recommended: @mcp Environment
 
-The cleanest approach is to install TestPickerMCPServer in a dedicated tools environment:
+Install TestPickerMCPServer in the `@mcp` named environment (Julia's standard for MCP tools):
 
 ```bash
-# 1. Create tools environment
-mkdir -p ~/.julia/environments/mcp-tools
-julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
+# 1. Install in @mcp environment
+julia --project=@mcp -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
 
 # 2. Add to Claude Code MCP config
 cd /path/to/your/julia/package
 claude mcp add --transport stdio testpicker --scope project -- \
-  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
-  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
+  julia --startup-file=no --project=@mcp \
+  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
 ```
 
 This approach:
+- Uses Julia's standard `@mcp` environment for MCP servers
 - Keeps TestPickerMCPServer separate from your project dependencies
 - Works across all your Julia packages
-- Doesn't pollute your global environment
 
-### Option 1: Stdio Transport (Default Method)
+### Alternative: Manual Server Start
 
-Claude Code works best with stdio transport (the default).
+You can also start the server manually for testing:
 
-**Start server in package directory:**
 ```bash
 cd ~/MyJuliaPackage
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
-### Option 2: HTTP Transport
+### HTTP Transport
 
 For persistent server across sessions:
 
-**Terminal 1 - Start server:**
 ```bash
 cd ~/MyJuliaPackage
-TESTPICKER_MCP_TRANSPORT=http julia --project -e 'using TestPickerMCPServer; start_server()'
-```
-
-**Terminal 2 - Use Claude Code:**
-```bash
-# Server runs at http://127.0.0.1:3000
-claude
+TESTPICKER_MCP_TRANSPORT=http julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
 ## MCP Configuration File
@@ -82,7 +73,7 @@ Add to your Claude Code MCP settings:
     "testpicker": {
       "command": "julia",
       "args": [
-        "--project",
+        "--project=@mcp",
         "-e",
         "using TestPickerMCPServer; start_server()"
       ],
@@ -152,7 +143,7 @@ Instead of environment variables, use Preferences.jl:
 
 ```bash
 cd /path/to/your/package
-julia --project -e '
+julia --project=@mcp -e '
 using Preferences, TestPickerMCPServer
 set_preferences!(TestPickerMCPServer, "transport" => "stdio")
 '
@@ -205,7 +196,7 @@ Run the server in the background:
 
 ```bash
 # Start server in background
-julia --project -e 'using TestPickerMCPServer; start_server()' &
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()' &
 
 # Use Claude Code
 claude
@@ -241,7 +232,7 @@ pkill -f TestPickerMCPServer
 **Check logs:**
 ```bash
 # Server should show errors on stderr
-julia --project -e 'using TestPickerMCPServer; start_server()' 2>&1 | tee server.log
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()' 2>&1 | tee server.log
 ```
 
 **Common issues:**
@@ -331,16 +322,17 @@ The CLAUDE.md approach is most effective because it provides persistent context 
 ### Complete Setup Example
 
 ```bash
-# 1. Create tools environment (one-time)
-julia --project=~/.julia/environments/mcp-tools -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
+# 1. Install in @mcp environment (one-time)
+julia --project=@mcp -e 'using Pkg; Pkg.add("TestPickerMCPServer")'
 
 # 2. In your package, add to MCP config
 cd /path/to/your/package
 claude mcp add --transport stdio testpicker --scope project -- \
-  julia --startup-file=no --project=~/.julia/environments/mcp-tools \
-  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server(\"$PWD\")"
+  julia --startup-file=no --project=@mcp \
+  -e "using TestPickerMCPServer; TestPickerMCPServer.start_server()"
 
 # 3. Add .claude/CLAUDE.md to prefer testpicker tools (recommended)
+mkdir -p .claude
 echo "Always use testpicker MCP tools for running tests." > .claude/CLAUDE.md
 ```
 
@@ -358,7 +350,7 @@ echo "Always use testpicker MCP tools for running tests." > .claude/CLAUDE.md
 ```bash
 # Terminal 1 - Start server
 cd ~/MyAwesomePackage
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 # Server starts and waits for requests...
 
 # Terminal 2 - Use Claude Code

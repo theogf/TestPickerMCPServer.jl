@@ -19,7 +19,7 @@ Failed to detect current package. Please ensure you:
 Navigate to your package directory before starting:
 ```bash
 cd /path/to/your/package
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
 Verify you're in a package:
@@ -90,7 +90,7 @@ Or via environment:
 ```powershell
 set TESTPICKER_MCP_HOST=127.0.0.1
 set TESTPICKER_MCP_TRANSPORT=http
-julia --project -e "using TestPickerMCPServer; start_server()"
+julia --project=@mcp -e "using TestPickerMCPServer; start_server()"
 ```
 
 ---
@@ -134,7 +134,7 @@ Failed to parse test_file.jl
 
 1. **Check file syntax:**
 ```bash
-julia --project -e 'include("test/test_file.jl")'
+julia --project=@mcp -e 'include("test/test_file.jl")'
 ```
 
 2. **Verify @testset structure:**
@@ -195,12 +195,12 @@ using Preferences
 
 1. **Check if tests run normally:**
 ```bash
-julia --project -e 'using Pkg; Pkg.test()'
+julia --project=@mcp -e 'using Pkg; Pkg.test()'
 ```
 
 2. **Enable logging:**
 ```bash
-JULIA_DEBUG=TestPickerMCPServer julia --project -e '...'
+JULIA_DEBUG=TestPickerMCPServer julia --project=@mcp -e '...'
 ```
 
 3. **Try HTTP mode for debugging:**

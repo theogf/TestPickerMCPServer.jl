@@ -79,7 +79,7 @@ For HTTP mode (useful for debugging):
 Then start the server separately:
 ```bash
 cd your-package
-TESTPICKER_MCP_TRANSPORT=http julia --project -e 'using TestPickerMCPServer; start_server()'
+TESTPICKER_MCP_TRANSPORT=http julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
 ## Using Preferences for Permanent Settings
@@ -88,7 +88,7 @@ Instead of environment variables, use Preferences.jl in your package:
 
 ```julia
 # In your package directory
-julia --project -e '
+julia --project=@mcp -e '
 using Preferences, TestPickerMCPServer
 set_preferences!(TestPickerMCPServer,
     "transport" => "stdio"  # or "http"
@@ -165,7 +165,7 @@ julia --version
 - Look for Julia errors
 
 **Common causes:**
-1. Missing dependencies: Run `julia --project -e 'using Pkg; Pkg.instantiate()'`
+1. Missing dependencies: Run `julia --project=@mcp -e 'using Pkg; Pkg.instantiate()'`
 2. Not in a package: Ensure `cd()` points to a valid package
 3. Syntax errors in config JSON
 
@@ -204,7 +204,7 @@ You can configure multiple servers for different packages:
 2. **Set preferences** instead of ENV vars for persistence
 3. **Test independently first:**
    ```bash
-   julia --project -e 'using TestPickerMCPServer; start_server()'
+   julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
    ```
 4. **Keep config simple** - let preferences handle settings
 5. **Restart Claude Desktop** after config changes

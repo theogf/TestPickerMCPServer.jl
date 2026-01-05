@@ -53,7 +53,7 @@ Override preferences for a single session:
 # HTTP mode with custom port
 TESTPICKER_MCP_TRANSPORT=http \
 TESTPICKER_MCP_PORT=8080 \
-julia --project -e 'using TestPickerMCPServer; start_server()'
+julia --project=@mcp -e 'using TestPickerMCPServer; start_server()'
 ```
 
 ## Method 3: Defaults
