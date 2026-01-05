@@ -4,8 +4,8 @@ list_testfiles({})
 // Returns: {&quot;files&quot;: [&quot;runtests.jl&quot;, &quot;test_feature.jl&quot;, &quot;test_utils.jl&quot;], ...}
 
 // Step 2: List testsets in a specific file
-list_test_blocks({&quot;file_query&quot;: &quot;feature&quot;})
-// Returns: {&quot;test_blocks&quot;: [{&quot;label&quot;: &quot;Edge Cases&quot;, ...}, {&quot;label&quot;: &quot;Happy Path&quot;, ...}]}
+list_testblocks({&quot;file_query&quot;: &quot;feature&quot;})
+// Returns: {&quot;testblocks&quot;: [{&quot;label&quot;: &quot;Edge Cases&quot;, ...}, {&quot;label&quot;: &quot;Happy Path&quot;, ...}]}
 
 // Step 3: Run a specific testset
 run_testblocks({&quot;file_query&quot;: &quot;feature&quot;, &quot;testset_query&quot;: &quot;edge&quot;})
@@ -30,7 +30,7 @@ run_testfiles({&quot;query&quot;: &quot;feature&quot;})
 
 // Step 4: Check if fixed
 get_testresults({})</code></pre><h2 id="Example-3:-Regression-Testing"><a class="docs-heading-anchor" href="#Example-3:-Regression-Testing">Example 3: Regression Testing</a><a id="Example-3:-Regression-Testing-1"></a><a class="docs-heading-anchor-permalink" href="#Example-3:-Regression-Testing" title="Permalink"></a></h2><p>After making changes, verify specific functionality:</p><pre><code class="language-json hljs">// List testsets related to the changed feature
-list_test_blocks({&quot;file_query&quot;: &quot;&quot;})
+list_testblocks({&quot;file_query&quot;: &quot;&quot;})
 // Scan for relevant testsets
 
 // Run only the relevant testsets
@@ -66,7 +66,7 @@ list_testfiles({})
 // Count how many test files you have
 
 // Get all testsets
-list_test_blocks({})
+list_testblocks({})
 // Analyze:
 // - How many testsets?
 // - What areas are tested?
@@ -74,7 +74,7 @@ list_test_blocks({})
 
 // Example response analysis:
 // {
-//   &quot;test_blocks&quot;: [
+//   &quot;testblocks&quot;: [
 //     {&quot;label&quot;: &quot;Basic Operations&quot;, &quot;file&quot;: &quot;test_core.jl&quot;, ...},
 //     {&quot;label&quot;: &quot;Edge Cases&quot;, &quot;file&quot;: &quot;test_core.jl&quot;, ...},
 //     {&quot;label&quot;: &quot;Performance&quot;, &quot;file&quot;: &quot;test_perf.jl&quot;, ...}
@@ -82,7 +82,7 @@ list_test_blocks({})
 //   &quot;count&quot;: 3
 // }
 // Shows: 3 testsets across 2 files</code></pre><h2 id="Example-7:-Interactive-Testing-Session"><a class="docs-heading-anchor" href="#Example-7:-Interactive-Testing-Session">Example 7: Interactive Testing Session</a><a id="Example-7:-Interactive-Testing-Session-1"></a><a class="docs-heading-anchor-permalink" href="#Example-7:-Interactive-Testing-Session" title="Permalink"></a></h2><p>Typical LLM-assisted testing session:</p><p><strong>User:</strong> &quot;Can you check if the authentication tests are passing?&quot;</p><p><strong>LLM uses tools:</strong></p><pre><code class="language-json hljs">// 1. Find auth-related tests
-list_test_blocks({&quot;file_query&quot;: &quot;&quot;})
+list_testblocks({&quot;file_query&quot;: &quot;&quot;})
 // Finds: &quot;Authentication Tests&quot; in test_auth.jl
 
 // 2. Run those tests
@@ -93,9 +93,9 @@ get_testresults({})</code></pre><p><strong>LLM reports:</strong> &quot;The authe
 list_testfiles({})
 
 // 2. For each file, list its testsets
-list_test_blocks({&quot;file_query&quot;: &quot;auth&quot;})
-list_test_blocks({&quot;file_query&quot;: &quot;utils&quot;})
-list_test_blocks({&quot;file_query&quot;: &quot;api&quot;})
+list_testblocks({&quot;file_query&quot;: &quot;auth&quot;})
+list_testblocks({&quot;file_query&quot;: &quot;utils&quot;})
+list_testblocks({&quot;file_query&quot;: &quot;api&quot;})
 
 // 3. Identify gaps
 // - Are all modules tested?
@@ -131,4 +131,4 @@ run_testblocks({&quot;testset_query&quot;: &quot;bug #123&quot;})
 // 5. Verify fix</code></pre><h3 id="Pattern:-Pre-Commit-Check"><a class="docs-heading-anchor" href="#Pattern:-Pre-Commit-Check">Pattern: Pre-Commit Check</a><a id="Pattern:-Pre-Commit-Check-1"></a><a class="docs-heading-anchor-permalink" href="#Pattern:-Pre-Commit-Check" title="Permalink"></a></h3><pre><code class="language-json hljs">// Run all tests before committing
 run_all_tests({})
 get_testresults({})
-// If results[&quot;count&quot;][&quot;total&quot;] == 0, safe to commit</code></pre><h2 id="Tips"><a class="docs-heading-anchor" href="#Tips">Tips</a><a id="Tips-1"></a><a class="docs-heading-anchor-permalink" href="#Tips" title="Permalink"></a></h2><ol><li><strong>Use empty queries</strong> to see everything: <code>{&quot;query&quot;: &quot;&quot;}</code></li><li><strong>Start broad, narrow down:</strong> List all, then filter</li><li><strong>Check results after every run:</strong> <code>get_testresults({})</code></li><li><strong>Use fuzzy matching:</strong> Type less, match more</li><li><strong>Run specific tests:</strong> Faster feedback than full suite</li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../config/">« Configuration</a><a class="docs-footer-nextpage" href="../tools/">MCP Tools Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 5 January 2026 16:41">Monday 5 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+// If results[&quot;count&quot;][&quot;total&quot;] == 0, safe to commit</code></pre><h2 id="Tips"><a class="docs-heading-anchor" href="#Tips">Tips</a><a id="Tips-1"></a><a class="docs-heading-anchor-permalink" href="#Tips" title="Permalink"></a></h2><ol><li><strong>Use empty queries</strong> to see everything: <code>{&quot;query&quot;: &quot;&quot;}</code></li><li><strong>Start broad, narrow down:</strong> List all, then filter</li><li><strong>Check results after every run:</strong> <code>get_testresults({})</code></li><li><strong>Use fuzzy matching:</strong> Type less, match more</li><li><strong>Run specific tests:</strong> Faster feedback than full suite</li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../config/">« Configuration</a><a class="docs-footer-nextpage" href="../tools/">MCP Tools Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 5 January 2026 21:03">Monday 5 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
