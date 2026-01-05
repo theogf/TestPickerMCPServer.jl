@@ -29,10 +29,11 @@ end
             # Should be the TestPickerMCPServer package
             @test pkg.name == "TestPickerMCPServer"
             @test pkg.path !== nothing
-            @test endswith(pkg.path, "TestPickerMCPServer")
+            path = chopsuffix(pkg.path, ".jl")
+            @test endswith(path, "TestPickerMCPServer")
 
             # Verify test directory exists
-            test_dir = joinpath(pkg.path, "test")
+            test_dir = joinpath(path, "test")
             @test isdir(test_dir)
 
             # Verify we have the expected test files
