@@ -13,7 +13,7 @@ list_testfiles({})
 
 // Step 2: List testsets in a specific file
 list_testblocks({"file_query": "feature"})
-// Returns: {"test_blocks": [{"label": "Edge Cases", ...}, {"label": "Happy Path", ...}]}
+// Returns: {"testblocks": [{"label": "Edge Cases", ...}, {"label": "Happy Path", ...}]}
 
 // Step 3: Run a specific testset
 run_testblocks({"file_query": "feature", "testset_query": "edge"})
@@ -122,7 +122,7 @@ list_testblocks({})
 
 // Example response analysis:
 // {
-//   "test_blocks": [
+//   "testblocks": [
 //     {"label": "Basic Operations", "file": "test_core.jl", ...},
 //     {"label": "Edge Cases", "file": "test_core.jl", ...},
 //     {"label": "Performance", "file": "test_perf.jl", ...}

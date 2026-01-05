@@ -93,12 +93,12 @@ end
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
 
-            @test haskey(parsed, "test_blocks")
+            @test haskey(parsed, "testblocks")
             @test haskey(parsed, "count")
-            @test parsed["count"] == length(parsed["test_blocks"])
+            @test parsed["count"] == length(parsed["testblocks"])
 
             # Verify each block has required fields
-            for block in parsed["test_blocks"]
+            for block in parsed["testblocks"]
                 @test haskey(block, "label")
                 @test haskey(block, "file")
                 @test haskey(block, "line_start")
@@ -114,7 +114,7 @@ end
 
             # Should find test blocks only from utils files
             if parsed["count"] > 0
-                for block in parsed["test_blocks"]
+                for block in parsed["testblocks"]
                     @test contains(block["file"], "utils")
                 end
             end
@@ -127,7 +127,7 @@ end
 
             if parsed["count"] > 0
                 # Check for known testsets in test_tools.jl
-                labels = [block["label"] for block in parsed["test_blocks"]]
+                labels = [block["label"] for block in parsed["testblocks"]]
                 @test any(contains(label, "Tool") for label in labels)
             end
         end
@@ -310,7 +310,7 @@ end
             # 5. List available test blocks
             result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             parsed = JSON.parse(result.text)
-            @test haskey(parsed, "test_blocks")
+            @test haskey(parsed, "testblocks")
             @test haskey(parsed, "count")
         end
     end
@@ -337,7 +337,7 @@ end
 
             if parsed["count"] > 0
                 # All block files should be in our test files list
-                block_files = unique([block["file"] for block in parsed["test_blocks"]])
+                block_files = unique([block["file"] for block in parsed["testblocks"]])
                 for file in block_files
                     filename = basename(file)
                     @test filename in actual_files

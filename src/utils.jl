@@ -109,6 +109,69 @@ function parse_results_file(pkg::Union{PackageSpec,Nothing})
 end
 
 """
+    format_file_results(results) -> Dict
+
+Format test file execution results into a consistent structure.
+Handles both successful EvalResult objects and error cases.
+Returns empty structure if results is nothing.
+"""
+function format_file_results(results)
+    # Handle case where no results (returns nothing)
+    isnothing(results) && return Dict("status" => "completed", "files_run" => [], "count" => 0)
+
+    # Extract file information from EvalResults
+    files_run = map(results) do r
+        # Handle different result types (EvalResult, EmptyFile, MissingFileException)
+        if r isa TestPicker.EvalResult
+            Dict("filename" => r.info.filename, "success" => r.success)
+        else
+            # For error cases (EmptyFile, MissingFileException)
+            Dict("error" => string(r))
+        end
+    end
+
+    return Dict(
+        "status" => "completed",
+        "files_run" => files_run,
+        "count" => length(files_run),
+    )
+end
+
+"""
+    format_block_results(results) -> Dict
+
+Format test block execution results into a consistent structure.
+Handles both successful EvalResult objects and error cases.
+Returns empty structure if results is nothing.
+"""
+function format_block_results(results)
+    # Handle case where no results (returns nothing)
+    isnothing(results) && return Dict("status" => "completed", "blocks_run" => [], "count" => 0)
+
+    # Extract block information from EvalResults
+    blocks_run = map(results) do r
+        # Handle different result types (EvalResult vs error cases)
+        if r isa TestPicker.EvalResult
+            Dict(
+                "label" => r.info.label,
+                "filename" => r.info.filename,
+                "line" => r.info.line,
+                "success" => r.success,
+            )
+        else
+            # For error cases
+            Dict("error" => string(r))
+        end
+    end
+
+    return Dict(
+        "status" => "completed",
+        "blocks_run" => blocks_run,
+        "count" => length(blocks_run),
+    )
+end
+
+"""
     with_error_handling(f::Function, operation::String) -> Content
 
 DRY wrapper for tool handlers. Catches exceptions and returns proper MCP responses.

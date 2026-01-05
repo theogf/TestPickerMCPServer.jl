@@ -39,7 +39,7 @@ List all @testset blocks in test files.
 **Returns:**
 ```json
 {
-  "test_blocks": [
+  "testblocks": [
     {
       "label": "Feature Tests",
       "file": "test_feature.jl",

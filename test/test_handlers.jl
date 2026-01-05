@@ -48,7 +48,7 @@ end
             result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
-            @test haskey(parsed, "test_blocks")
+            @test haskey(parsed, "testblocks")
             @test haskey(parsed, "count")
             @test parsed["count"] >= 0
 

@@ -47,7 +47,7 @@ function handle_list_testblocks(params::Dict{String,Any})
             end
         end
 
-        to_json(Dict("test_blocks" => blocks, "count" => length(blocks)))
+        to_json(Dict("testblocks" => blocks, "count" => length(blocks)))
     end
 end
 
@@ -73,28 +73,7 @@ function handle_run_all_tests(::Dict{String,Any})
             results = TestPicker.fzf_testfile(""; interactive = false)
         end
 
-        # Handle case where no results (returns nothing)
-        isnothing(results) &&
-            return to_json(Dict("status" => "completed", "files_run" => [], "count" => 0))
-
-        # Extract file information from EvalResults
-        files_run = map(results) do r
-            # Handle different result types (EvalResult, EmptyFile, MissingFileException)
-            if r isa TestPicker.EvalResult
-                Dict("filename" => r.info.filename, "success" => r.success)
-            else
-                # For error cases (EmptyFile, MissingFileException)
-                Dict("error" => string(r))
-            end
-        end
-
-        to_json(
-            Dict(
-                "status" => "completed",
-                "files_run" => files_run,
-                "count" => length(files_run),
-            ),
-        )
+        to_json(format_file_results(results))
     end
 end
 
@@ -115,28 +94,7 @@ function handle_run_testfiles(params::Dict{String,Any})
         # Run test files matching query
         results = TestPicker.fzf_testfile(query; interactive = false)
 
-        # Handle case where no results (returns nothing)
-        isnothing(results) &&
-            return to_json(Dict("status" => "completed", "files_run" => [], "count" => 0))
-
-        # Extract file information from EvalResults
-        files_run = map(results) do r
-            # Handle different result types (EvalResult, EmptyFile, MissingFileException)
-            if r isa TestPicker.EvalResult
-                Dict("filename" => r.info.filename, "success" => r.success)
-            else
-                # For error cases (EmptyFile, MissingFileException)
-                Dict("error" => string(r))
-            end
-        end
-
-        to_json(
-            Dict(
-                "status" => "completed",
-                "files_run" => files_run,
-                "count" => length(files_run),
-            ),
-        )
+        to_json(format_file_results(results))
     end
 end
 
@@ -161,33 +119,7 @@ function handle_run_testblocks(params::Dict{String,Any})
             interactive = false,
         )
 
-        # Handle case where no results (returns nothing)
-        isnothing(results) &&
-            return to_json(Dict("status" => "completed", "blocks_run" => [], "count" => 0))
-
-        # Extract block information from EvalResults
-        blocks_run = map(results) do r
-            # Handle different result types (EvalResult vs error cases)
-            if r isa TestPicker.EvalResult
-                Dict(
-                    "label" => r.info.label,
-                    "filename" => r.info.filename,
-                    "line" => r.info.line,
-                    "success" => r.success,
-                )
-            else
-                # For error cases
-                Dict("error" => string(r))
-            end
-        end
-
-        to_json(
-            Dict(
-                "status" => "completed",
-                "blocks_run" => blocks_run,
-                "count" => length(blocks_run),
-            ),
-        )
+        to_json(format_block_results(results))
     end
 end
 
