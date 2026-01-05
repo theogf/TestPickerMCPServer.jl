@@ -24,19 +24,6 @@ function detect_package()
 end
 
 """
-    activate_package(pkg_dir::String)
-
-Activate the Julia package environment at the specified directory.
-
-# Arguments
-- `pkg_dir::String`: Path to the package directory to activate
-"""
-function activate_package(pkg_dir::String)
-    @info "Activating package environment at: $pkg_dir"
-    Pkg.activate(pkg_dir)
-end
-
-"""
     to_json(data) -> TextContent
 
 Convert data to JSON and wrap in TextContent. DRY helper for all handlers.
@@ -54,12 +41,21 @@ function filter_files(files::Vector{String}, query::String)
 end
 
 """
-    parse_results_file(pkg::PackageSpec) -> Dict
+    parse_results_file(pkg::Union{PackageSpec,Nothing}) -> Dict
 
 Read and parse the TestPicker results file into structured format.
 Returns dict with failures, errors, and counts.
 """
-function parse_results_file(pkg::PackageSpec)
+function parse_results_file(pkg::Union{PackageSpec,Nothing})
+    # Handle case when no package is activated
+    if isnothing(pkg)
+        return Dict(
+            "failures" => [],
+            "errors" => [],
+            "count" => Dict("failures" => 0, "errors" => 0, "total" => 0),
+        )
+    end
+
     path = TestPicker.pkg_results_path(pkg)
 
     # Return empty results if file doesn't exist
@@ -113,6 +109,69 @@ function parse_results_file(pkg::PackageSpec)
 end
 
 """
+    format_file_results(results) -> Dict
+
+Format test file execution results into a consistent structure.
+Handles both successful EvalResult objects and error cases.
+Returns empty structure if results is nothing.
+"""
+function format_file_results(results)
+    # Handle case where no results (returns nothing)
+    isnothing(results) && return Dict("status" => "completed", "files_run" => [], "count" => 0)
+
+    # Extract file information from EvalResults
+    files_run = map(results) do r
+        # Handle different result types (EvalResult, EmptyFile, MissingFileException)
+        if r isa TestPicker.EvalResult
+            Dict("filename" => r.info.filename, "success" => r.success)
+        else
+            # For error cases (EmptyFile, MissingFileException)
+            Dict("error" => string(r))
+        end
+    end
+
+    return Dict(
+        "status" => "completed",
+        "files_run" => files_run,
+        "count" => length(files_run),
+    )
+end
+
+"""
+    format_block_results(results) -> Dict
+
+Format test block execution results into a consistent structure.
+Handles both successful EvalResult objects and error cases.
+Returns empty structure if results is nothing.
+"""
+function format_block_results(results)
+    # Handle case where no results (returns nothing)
+    isnothing(results) && return Dict("status" => "completed", "blocks_run" => [], "count" => 0)
+
+    # Extract block information from EvalResults
+    blocks_run = map(results) do r
+        # Handle different result types (EvalResult vs error cases)
+        if r isa TestPicker.EvalResult
+            Dict(
+                "label" => r.info.label,
+                "filename" => r.info.filename,
+                "line" => r.info.line,
+                "success" => r.success,
+            )
+        else
+            # For error cases
+            Dict("error" => string(r))
+        end
+    end
+
+    return Dict(
+        "status" => "completed",
+        "blocks_run" => blocks_run,
+        "count" => length(blocks_run),
+    )
+end
+
+"""
     with_error_handling(f::Function, operation::String) -> Content
 
 DRY wrapper for tool handlers. Catches exceptions and returns proper MCP responses.
@@ -121,8 +180,8 @@ function with_error_handling(f::Function, operation::String)
     try
         return f()
     catch e
-        msg = "Error in $operation: $e"
-        @error msg exception = (e, catch_backtrace())
-        return TextContent(; text = msg)
+        error_msg = string(e)
+        @error "Error in $operation" exception = (e, catch_backtrace())
+        return to_json(Dict("error" => error_msg, "operation" => operation))
     end
 end

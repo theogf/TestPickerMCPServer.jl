@@ -2,11 +2,6 @@ using Test
 using TestPickerMCPServer
 using Pkg
 
-# Initialize SERVER_PKG for handler and integration tests
-# This mimics what start_server() does but in test context
-TestPickerMCPServer.SERVER_PKG[] =
-    Pkg.Types.PackageSpec(; name = "TestPickerMCPServer", path = dirname(@__DIR__))
-
 @testset "TestPickerMCPServer.jl" begin
     include("test_utils.jl")
     include("test_utils_extended.jl")

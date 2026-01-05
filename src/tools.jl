@@ -19,12 +19,12 @@ const TOOL_LIST_FILES = MCPTool(;
 )
 
 """
-Tool: list_test_blocks
+Tool: list_testblocks
 
 List all test blocks/testsets in test files.
 """
 const TOOL_LIST_BLOCKS = MCPTool(;
-    name = "list_test_blocks",
+    name = "list_testblocks",
     description = "List all @testset blocks found in test files. Returns label, file path, line start, and line end for each test block. Useful for discovering available testsets before running specific ones.",
     parameters = [
         ToolParameter(;
@@ -35,7 +35,7 @@ const TOOL_LIST_BLOCKS = MCPTool(;
             default = "",
         ),
     ],
-    handler = handle_list_test_blocks,
+    handler = handle_list_testblocks,
 )
 
 """

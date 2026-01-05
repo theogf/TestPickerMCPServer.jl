@@ -255,7 +255,7 @@ When running tests in this Julia project, ALWAYS use the testpicker MCP server t
 - Use `mcp__testpicker__run_testfiles` to run specific test files
 - Use `mcp__testpicker__run_testblocks` to run specific @testset blocks
 - Use `mcp__testpicker__list_testfiles` to discover test files
-- Use `mcp__testpicker__list_test_blocks` to find @testset blocks
+- Use `mcp__testpicker__list_testblocks` to find @testset blocks
 - Use `mcp__testpicker__run_all_tests` to run the entire test suite
 - Use `mcp__testpicker__get_testresults` to see detailed failures
 
