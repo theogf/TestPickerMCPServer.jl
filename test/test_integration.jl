@@ -1,13 +1,19 @@
 using TestPickerMCPServer
+using Base: with_logger, NullLogger
 using Test
 using JSON
 using ModelContextProtocol
 using Pkg
 
 function with_tp_pkg(f)
-    Pkg.activate(pkgdir(TestPickerMCPServer)) do
-        TestPickerMCPServer.detect_package()
-        f()
+    Pkg.activate(pkgdir(TestPickerMCPServer); io = devnull) do
+        # Simulate start of server
+        TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
+        try
+            f()
+        finally
+            TestPickerMCPServer.SERVER_PKG[] = nothing
+        end
     end
 end
 
@@ -138,7 +144,7 @@ end
             @test haskey(parsed, "status")
             @test haskey(parsed, "files_run")
             @test parsed["status"] in ["completed", "failed"]
-            @test parsed["files_run"] >= 1
+            @test parse(Int, parsed["files_run"]) >= 1
 
             # The file that ran should be test_tools.jl
             if haskey(parsed, "summary")
@@ -281,7 +287,7 @@ end
             )
             parsed = JSON.parse(result.text)
             @test parsed["status"] in ["completed", "failed"]
-            @test parsed["files_run"] >= 1
+            @test length(parsed["files_run"]) >= 1
 
             # 4. Check results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
@@ -305,28 +311,30 @@ end
     @testset "Cross-tool consistency" begin
         # Verify that file counts are consistent across tools
 
-        # Get files via list_testfiles
-        result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
-        parsed = JSON.parse(result.text)
-        file_count = parsed["count"]
+        with_tp_pkg() do
+            # Get files via list_testfiles
+            result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
+            parsed = JSON.parse(result.text)
+            file_count = parsed["count"]
 
-        # Verify SERVER_PKG has same test files
-        pkg = TestPickerMCPServer.SERVER_PKG[]
-        test_dir = joinpath(pkg.path, "test")
-        actual_files = filter(f -> endswith(f, ".jl"), readdir(test_dir))
+            # Verify SERVER_PKG has same test files
+            pkg = TestPickerMCPServer.SERVER_PKG[]
+            test_dir = joinpath(pkg.path, "test")
+            actual_files = filter(f -> endswith(f, ".jl"), readdir(test_dir))
 
-        @test file_count == length(actual_files)
+            @test file_count == length(actual_files)
 
-        # Verify list_test_blocks uses same files
-        result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
-        parsed = JSON.parse(result.text)
+            # Verify list_test_blocks uses same files
+            result = TestPickerMCPServer.handle_list_test_blocks(Dict{String,Any}())
+            parsed = JSON.parse(result.text)
 
-        if parsed["count"] > 0
-            # All block files should be in our test files list
-            block_files = unique([block["file"] for block in parsed["test_blocks"]])
-            for file in block_files
-                filename = basename(file)
-                @test filename in actual_files
+            if parsed["count"] > 0
+                # All block files should be in our test files list
+                block_files = unique([block["file"] for block in parsed["test_blocks"]])
+                for file in block_files
+                    filename = basename(file)
+                    @test filename in actual_files
+                end
             end
         end
     end
