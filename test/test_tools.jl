@@ -6,25 +6,26 @@ using Test
         @test length(TestPickerMCPServer.ALL_TOOLS) == 6
 
         tool_names = [tool.name for tool in TestPickerMCPServer.ALL_TOOLS]
-        @test "list_test_files" in tool_names
+        @test "list_testfiles" in tool_names
         @test "list_test_blocks" in tool_names
         @test "run_all_tests" in tool_names
-        @test "run_test_files" in tool_names
-        @test "run_test_blocks" in tool_names
-        @test "get_test_results" in tool_names
+        @test "run_testfiles" in tool_names
+        @test "run_testblocks" in tool_names
+        @test "get_testresults" in tool_names
     end
 
     @testset "Tool parameters" begin
-        # Test list_test_files tool
-        list_files = findfirst(t -> t.name == "list_test_files", TestPickerMCPServer.ALL_TOOLS)
+        # Test list_testfiles tool
+        list_files =
+            findfirst(t -> t.name == "list_testfiles", TestPickerMCPServer.ALL_TOOLS)
         @test list_files !== nothing
         tool = TestPickerMCPServer.ALL_TOOLS[list_files]
         @test length(tool.parameters) == 1
         @test tool.parameters[1].name == "query"
         @test tool.parameters[1].required == false
 
-        # Test run_test_files tool
-        run_files = findfirst(t -> t.name == "run_test_files", TestPickerMCPServer.ALL_TOOLS)
+        # Test run_testfiles tool
+        run_files = findfirst(t -> t.name == "run_testfiles", TestPickerMCPServer.ALL_TOOLS)
         @test run_files !== nothing
         tool = TestPickerMCPServer.ALL_TOOLS[run_files]
         @test length(tool.parameters) == 1
@@ -32,7 +33,8 @@ using Test
         @test tool.parameters[1].required == true
 
         # Test run_test_blocks tool
-        run_blocks = findfirst(t -> t.name == "run_test_blocks", TestPickerMCPServer.ALL_TOOLS)
+        run_blocks =
+            findfirst(t -> t.name == "run_testblocks", TestPickerMCPServer.ALL_TOOLS)
         @test run_blocks !== nothing
         tool = TestPickerMCPServer.ALL_TOOLS[run_blocks]
         @test length(tool.parameters) == 2

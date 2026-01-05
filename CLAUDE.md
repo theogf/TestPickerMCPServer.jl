@@ -152,10 +152,10 @@ When testing changes to TestPickerMCPServer itself, the server needs to be runni
 
 ```julia
 # Get files
-test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
+test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
 
 # Run files
-TestPicker.run_test_files(file_paths, SERVER_PKG[])
+TestPicker.run_testfiles(file_paths, SERVER_PKG[])
 
 # Get test blocks
 TestPicker.get_testblocks(INTERFACES, file_path)
