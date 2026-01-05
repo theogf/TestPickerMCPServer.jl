@@ -6,13 +6,15 @@ using ModelContextProtocol
 using Pkg
 
 function with_tp_pkg(f)
-    Pkg.activate(pkgdir(TestPickerMCPServer); io = devnull) do
-        # Simulate start of server
-        TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
-        try
-            f()
-        finally
-            TestPickerMCPServer.SERVER_PKG[] = nothing
+    redirect_stderr(devnull) do
+        Pkg.activate(pkgdir(TestPickerMCPServer)) do
+            # Simulate start of server
+            TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
+            try
+                f()
+            finally
+                TestPickerMCPServer.SERVER_PKG[] = nothing
+            end
         end
     end
 end
@@ -197,17 +199,26 @@ end
         # Test required parameter validation for run_testfiles
         result = TestPickerMCPServer.handle_run_testfiles(Dict{String,Any}())
         @test result isa ModelContextProtocol.TextContent
-        @test occursin("Error", result.text) || occursin("query required", result.text)
+        parsed = JSON.parse(result.text)
+        @test haskey(parsed, "error")
+        @test haskey(parsed, "operation")
+        @test contains(parsed["error"], "query required")
 
         # Test required parameter validation for run_testblocks
         result = TestPickerMCPServer.handle_run_testblocks(Dict{String,Any}())
         @test result isa ModelContextProtocol.TextContent
-        @test occursin("Error", result.text) || occursin("query required", result.text)
+        parsed = JSON.parse(result.text)
+        @test haskey(parsed, "error")
+        @test haskey(parsed, "operation")
+        @test contains(parsed["error"], "testset_query required")
 
         # Test required parameter validation for activate_package
         result = TestPickerMCPServer.handle_activate_package(Dict{String,Any}())
         @test result isa ModelContextProtocol.TextContent
-        @test occursin("Error", result.text) || occursin("pkg_dir required", result.text)
+        parsed = JSON.parse(result.text)
+        @test haskey(parsed, "error")
+        @test haskey(parsed, "operation")
+        @test contains(parsed["error"], "pkg_dir required")
     end
 
     @testset "ALL_TOOLS completeness" begin
@@ -249,7 +260,7 @@ end
     end
 
     @testset "Error handling consistency" begin
-        # All errors should return TextContent with error message
+        # All errors should return TextContent with JSON error message
         handlers_to_test = [
             (TestPickerMCPServer.handle_run_testfiles, Dict{String,Any}()),
             (TestPickerMCPServer.handle_run_testblocks, Dict{String,Any}()),
@@ -259,7 +270,10 @@ end
         for (handler, params) in handlers_to_test
             result = handler(params)
             @test result isa ModelContextProtocol.TextContent
-            @test occursin("Error", result.text) || occursin("required", result.text)
+            parsed = JSON.parse(result.text)
+            @test haskey(parsed, "error")
+            @test haskey(parsed, "operation")
+            @test contains(parsed["error"], "required")
         end
     end
 

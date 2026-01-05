@@ -54,12 +54,21 @@ function filter_files(files::Vector{String}, query::String)
 end
 
 """
-    parse_results_file(pkg::PackageSpec) -> Dict
+    parse_results_file(pkg::Union{PackageSpec,Nothing}) -> Dict
 
 Read and parse the TestPicker results file into structured format.
 Returns dict with failures, errors, and counts.
 """
-function parse_results_file(pkg::PackageSpec)
+function parse_results_file(pkg::Union{PackageSpec,Nothing})
+    # Handle case when no package is activated
+    if isnothing(pkg)
+        return Dict(
+            "failures" => [],
+            "errors" => [],
+            "count" => Dict("failures" => 0, "errors" => 0, "total" => 0),
+        )
+    end
+
     path = TestPicker.pkg_results_path(pkg)
 
     # Return empty results if file doesn't exist
@@ -121,8 +130,8 @@ function with_error_handling(f::Function, operation::String)
     try
         return f()
     catch e
-        msg = "Error in $operation: $e"
-        @error msg exception = (e, catch_backtrace())
-        return TextContent(; text = msg)
+        error_msg = string(e)
+        @error "Error in $operation" exception = (e, catch_backtrace())
+        return to_json(Dict("error" => error_msg, "operation" => operation))
     end
 end
