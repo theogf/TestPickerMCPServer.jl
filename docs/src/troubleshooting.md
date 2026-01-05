@@ -46,7 +46,7 @@ ls test/
 
 1. **List available files first:**
 ```json
-list_test_files({})
+list_testfiles({})
 ```
 
 2. **List available testsets:**

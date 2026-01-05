@@ -8,7 +8,7 @@ Workflow for exploring a new package's tests:
 
 ```json
 // Step 1: List all test files
-list_test_files({})
+list_testfiles({})
 // Returns: {"files": ["runtests.jl", "test_feature.jl", "test_utils.jl"], ...}
 
 // Step 2: List testsets in a specific file
@@ -42,7 +42,7 @@ get_test_results({})
 // }
 
 // Step 3: Re-run just the failing file
-run_test_files({"query": "feature"})
+run_testfiles({"query": "feature"})
 
 // Step 4: Check if fixed
 get_test_results({})
@@ -77,7 +77,7 @@ ENV["TESTPICKER_MCP_TRANSPORT"] = "http"
 start_server()
 
 # Or use directly (pseudo-code):
-result = run_test_files(Dict("query" => "integration"))
+result = run_testfiles(Dict("query" => "integration"))
 results = get_test_results(Dict())
 
 if results["count"]["total"] > 0
@@ -95,7 +95,7 @@ Run only tests matching specific patterns:
 run_test_blocks({"testset_query": "performance"})
 
 // Run all tests in files matching "integration"
-run_test_files({"query": "integration"})
+run_testfiles({"query": "integration"})
 
 // Run specific edge case tests
 run_test_blocks({
@@ -110,7 +110,7 @@ Analyze your test suite structure:
 
 ```json
 // Get overview of all test files
-list_test_files({})
+list_testfiles({})
 // Count how many test files you have
 
 // Get all testsets
@@ -159,7 +159,7 @@ Understanding what's tested:
 
 ```json
 // 1. List all test files
-list_test_files({})
+list_testfiles({})
 
 // 2. For each file, list its testsets
 list_test_blocks({"file_query": "auth"})
@@ -194,7 +194,7 @@ Run multiple test files:
 
 ```json
 // Run all files matching "integration"
-run_test_files({"query": "integration"})
+run_testfiles({"query": "integration"})
 // Might run: test_integration_api.jl, test_integration_db.jl, etc.
 
 // Run all tests (no filter)

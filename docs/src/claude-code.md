@@ -252,9 +252,9 @@ Create a `.claude/CLAUDE.md` or `.claude/CLAUDE.local.md` file in your project r
 # Test Picking with TestPicker MCP
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
-- Use `mcp__testpicker__run_test_files` to run specific test files
+- Use `mcp__testpicker__run_testfiles` to run specific test files
 - Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
-- Use `mcp__testpicker__list_test_files` to discover test files
+- Use `mcp__testpicker__list_testfiles` to discover test files
 - Use `mcp__testpicker__list_test_blocks` to find @testset blocks
 - Use `mcp__testpicker__run_all_tests` to run the entire test suite
 - Use `mcp__testpicker__get_test_results` to see detailed failures
@@ -286,8 +286,8 @@ name: test
 description: Run tests using TestPicker MCP tools
 prompt: |
   When the user asks to run tests, use the testpicker MCP server tools:
-  - list_test_files to discover tests
-  - run_test_files to run specific files (accepts fuzzy queries)
+  - list_testfiles to discover tests
+  - run_testfiles to run specific files (accepts fuzzy queries)
   - run_test_blocks to run specific @testset blocks
   - get_test_results to show failures
 
@@ -359,11 +359,11 @@ claude
 
 # In Claude Code:
 > Can you list all test files?
-# Claude uses list_test_files tool
+# Claude uses list_testfiles tool
 # Returns: {"files": ["test_core.jl", "test_utils.jl"], ...}
 
 > Run test_core.jl
-# Claude uses run_test_files with query="core"
+# Claude uses run_testfiles with query="core"
 # Executes tests...
 
 > Show any failures

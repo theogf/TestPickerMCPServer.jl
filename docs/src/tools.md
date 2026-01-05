@@ -2,7 +2,7 @@
 
 TestPickerMCPServer exposes 6 tools via the Model Context Protocol.
 
-## 1. list_test_files
+## 1. list_testfiles
 
 List all test files in the current package.
 
@@ -83,7 +83,7 @@ Run the entire test suite.
 
 ---
 
-## 4. run_test_files
+## 4. run_testfiles
 
 Run specific test file(s) matched by query.
 
@@ -192,7 +192,7 @@ Retrieve detailed failures and errors from the last test run.
 
 ```json
 // 1. List all test files
-list_test_files({})
+list_testfiles({})
 
 // 2. List testsets in specific file
 list_test_blocks({"file_query": "feature"})
@@ -215,7 +215,7 @@ get_test_results({})
 // See which file has failures
 
 // 3. Re-run just that file
-run_test_files({"query": "feature"})
+run_testfiles({"query": "feature"})
 
 // 4. Get updated results
 get_test_results({})

@@ -122,7 +122,7 @@ Then your Claude Desktop config can be simple:
    ```
 
 4. **Expected response:**
-   - Claude will use `list_test_files` tool
+   - Claude will use `list_testfiles` tool
    - Returns JSON with test files
 
 ## Troubleshooting
