@@ -32,17 +32,7 @@ claude mcp add --transport stdio testpicker --scope project -- \
 claude mcp add --transport http testpicker http://localhost:3000/mcp --scope project
 ```
 
-Or manually add to `.mcp.json` in your project (see [claude_code_config.json](claude_code_config.json) for reference).
-
-Then in your Julia package directory:
-```bash
-claude
-```
-
-Ask Claude Code:
-- "List all test files"
-- "Run the authentication tests"
-- "Show me test failures"
+Or manually add to `.mcp.json` (see this minimal [.mcp.json](.mcp.json) for reference).
 
 ## What It Does
 
@@ -58,12 +48,14 @@ Exposes 7 MCP tools for testing Julia packages:
 ## Configuration
 
 **Preferences (persistent for the repository):**
+
 ```julia
 using Preferences
 set_preferences!(TestPickerMCPServer, "transport" => "http", "port" => 3000)
 ```
 
 **Environment variables (temporary):**
+
 ```bash
 TESTPICKER_MCP_TRANSPORT=http TESTPICKER_MCP_PORT=3000 julia -e '...'
 ```
@@ -74,7 +66,8 @@ See the [full documentation](https://theogf.github.io/TestPickerMCPServer.jl/dev
 
 To ensure Claude Code consistently uses the testpicker MCP tools instead of running `julia -e 'Pkg.test()'` directly:
 
-**Create `.claude/CLAUDE.md` in your project:**
+**Create/Add to `.claude/CLAUDE.md` in your project:**
+
 ```markdown
 # Test Picking with TestPicker MCP
 
@@ -85,14 +78,6 @@ When running tests in this Julia project, ALWAYS use the testpicker MCP server t
 - Use `mcp__testpicker__get_test_results` to see detailed failures
 
 Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
-```
-
-**Enable auto-approval in `.claude/settings.json`:**
-```json
-{
-  "enabledMcpjsonServers": ["testpicker"],
-  "enableAllProjectMcpServers": true
-}
 ```
 
 See the [Claude Code integration docs](https://theogf.github.io/TestPickerMCPServer.jl/dev/claude-code/) for more details.
