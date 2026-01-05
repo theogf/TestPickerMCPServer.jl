@@ -5,7 +5,7 @@ List all test files in the current package, optionally filtered by query.
 """
 function handle_list_testfiles(params::Dict{String,Any})
     with_error_handling("list_testfiles") do
-        test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
+        test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
         files = filter_files(files, get(params, "query", ""))
         to_json(Dict("test_dir" => test_dir, "files" => files, "count" => length(files)))
     end
@@ -18,7 +18,7 @@ List all test blocks/testsets, optionally filtered by file query.
 """
 function handle_list_test_blocks(params::Dict{String,Any})
     with_error_handling("list_test_blocks") do
-        test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
+        test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
         files = filter_files(files, get(params, "file_query", ""))
 
         blocks = []
@@ -52,8 +52,8 @@ Run the entire test suite for the current package.
 """
 function handle_run_all_tests(::Dict{String,Any})
     with_error_handling("run_all_tests") do
-        test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
-        TestPicker.run_test_files([joinpath(test_dir, f) for f in files], SERVER_PKG[])
+        test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
+        TestPicker.run_testfiles([joinpath(test_dir, f) for f in files], SERVER_PKG[])
 
         results = parse_results_file(SERVER_PKG[])
         to_json(
@@ -80,23 +80,27 @@ function handle_run_testfiles(params::Dict{String,Any})
         results = TestPicker.fzf_testfile(query; interactive = false)
 
         # Handle case where no results (returns nothing)
-        isnothing(results) && return to_json(Dict("status" => "completed", "files_run" => [], "count" => 0))
+        isnothing(results) &&
+            return to_json(Dict("status" => "completed", "files_run" => [], "count" => 0))
 
         # Extract file information from EvalResults
         files_run = map(results) do r
             # Handle different result types (EvalResult, EmptyFile, MissingFileException)
             if r isa TestPicker.EvalResult
-                Dict(
-                    "filename" => r.info.filename,
-                    "success" => r.success,
-                )
+                Dict("filename" => r.info.filename, "success" => r.success)
             else
                 # For error cases (EmptyFile, MissingFileException)
                 Dict("error" => string(r))
             end
         end
 
-        to_json(Dict("status" => "completed", "files_run" => files_run, "count" => length(files_run)))
+        to_json(
+            Dict(
+                "status" => "completed",
+                "files_run" => files_run,
+                "count" => length(files_run),
+            ),
+        )
     end
 end
 
@@ -118,7 +122,8 @@ function handle_run_test_blocks(params::Dict{String,Any})
         )
 
         # Handle case where no results (returns nothing)
-        isnothing(results) && return to_json(Dict("status" => "completed", "blocks_run" => [], "count" => 0))
+        isnothing(results) &&
+            return to_json(Dict("status" => "completed", "blocks_run" => [], "count" => 0))
 
         # Extract block information from EvalResults
         blocks_run = [
@@ -130,7 +135,13 @@ function handle_run_test_blocks(params::Dict{String,Any})
             ) for r in results
         ]
 
-        to_json(Dict("status" => "completed", "blocks_run" => blocks_run, "count" => length(blocks_run)))
+        to_json(
+            Dict(
+                "status" => "completed",
+                "blocks_run" => blocks_run,
+                "count" => length(blocks_run),
+            ),
+        )
     end
 end
 
@@ -161,10 +172,12 @@ function handle_activate_package(params::Dict{String,Any})
         # Re-detect and update the cached package
         SERVER_PKG[] = detect_package()
 
-        to_json(Dict(
-            "status" => "success",
-            "pkg_dir" => pkg_dir,
-            "package_name" => SERVER_PKG[].name,
-        ))
+        to_json(
+            Dict(
+                "status" => "success",
+                "pkg_dir" => pkg_dir,
+                "package_name" => SERVER_PKG[].name,
+            ),
+        )
     end
 end
