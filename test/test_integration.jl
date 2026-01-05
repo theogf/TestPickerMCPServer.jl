@@ -146,7 +146,7 @@ end
             @test haskey(parsed, "status")
             @test haskey(parsed, "files_run")
             @test parsed["status"] in ["completed", "failed"]
-            @test parse(Int, parsed["files_run"]) >= 1
+            @test length(parsed["files_run"]) >= 1
 
             # The file that ran should be test_tools.jl
             if haskey(parsed, "summary")
