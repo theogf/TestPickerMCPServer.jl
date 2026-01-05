@@ -5,6 +5,9 @@ List all test files in the current package, optionally filtered by query.
 """
 function handle_list_testfiles(params::Dict{String,Any})
     with_error_handling("list_testfiles") do
+        isnothing(SERVER_PKG[]) && error(
+            "No package activated, make sure to give `start_server` a valid Project path.",
+        )
         test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
         files = filter_files(files, get(params, "query", ""))
         to_json(Dict("test_dir" => test_dir, "files" => files, "count" => length(files)))
@@ -52,6 +55,7 @@ Run the entire test suite for the current package.
 """
 function handle_run_all_tests(::Dict{String,Any})
     with_error_handling("run_all_tests") do
+        # Get all test files
         test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
         TestPicker.run_testfiles([joinpath(test_dir, f) for f in files], SERVER_PKG[])
 
