@@ -3,6 +3,7 @@ using Test
 using JSON
 using ModelContextProtocol
 using Pkg
+using TestPicker
 using Base: with_logger, NullLogger
 
 function with_tp_pkg(f)
