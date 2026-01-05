@@ -80,11 +80,13 @@ Available settings:
 
 ## Naming Conventions
 
-**CRITICAL:** Tool naming uses "testfiles" (singular word), not "test_files"
+**CRITICAL:** All tool names use compound words without underscores:
+- ✅ `run_testfiles`, `run_testblocks`, `get_testresults`
+- ❌ `run_test_files`, `run_test_blocks`, `get_test_results`
 
 **MCP Tool Names:**
 - `list_testfiles` - List all test files with optional fuzzy query
-- `list_test_blocks` - List @testset blocks within files
+- `list_testblocks` - List @testset blocks within files
 - `run_all_tests` - Run entire test suite
 - `run_testfiles` - Run specific files by fuzzy query
 - `run_testblocks` - Run specific testsets by fuzzy query

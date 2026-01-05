@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-TestPickerMCPServer exposes 6 tools via the Model Context Protocol.
+TestPickerMCPServer exposes 7 tools via the Model Context Protocol.
 
 ## 1. list_testfiles
 
