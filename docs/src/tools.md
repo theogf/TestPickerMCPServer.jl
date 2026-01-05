@@ -79,7 +79,7 @@ Run the entire test suite.
 
 **Notes:**
 - Runs all tests in the package's `test/` directory
-- Use `get_test_results` after to see failures/errors
+- Use `get_testresults` after to see failures/errors
 
 ---
 
@@ -115,7 +115,7 @@ Run specific test file(s) matched by query.
 
 ---
 
-## 5. run_test_blocks
+## 5. run_testblocks
 
 Run specific @testset blocks by query.
 
@@ -147,7 +147,7 @@ Run specific @testset blocks by query.
 
 ---
 
-## 6. get_test_results
+## 6. get_testresults
 
 Retrieve detailed failures and errors from the last test run.
 
@@ -198,10 +198,10 @@ list_testfiles({})
 list_test_blocks({"file_query": "feature"})
 
 // 3. Run specific testset
-run_test_blocks({"file_query": "feature", "testset_query": "edge cases"})
+run_testblocks({"file_query": "feature", "testset_query": "edge cases"})
 
 // 4. Check results
-get_test_results({})
+get_testresults({})
 ```
 
 ### Debug Failing Tests Workflow
@@ -211,12 +211,12 @@ get_test_results({})
 run_all_tests({})
 
 // 2. Get failures
-get_test_results({})
+get_testresults({})
 // See which file has failures
 
 // 3. Re-run just that file
 run_testfiles({"query": "feature"})
 
 // 4. Get updated results
-get_test_results({})
+get_testresults({})
 ```

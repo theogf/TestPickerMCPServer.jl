@@ -16,11 +16,11 @@ list_test_blocks({"file_query": "feature"})
 // Returns: {"test_blocks": [{"label": "Edge Cases", ...}, {"label": "Happy Path", ...}]}
 
 // Step 3: Run a specific testset
-run_test_blocks({"file_query": "feature", "testset_query": "edge"})
+run_testblocks({"file_query": "feature", "testset_query": "edge"})
 // Returns: {"status": "completed"}
 
 // Step 4: Check if any tests failed
-get_test_results({})
+get_testresults({})
 // Returns: failures and errors, or empty arrays if all passed
 ```
 
@@ -34,7 +34,7 @@ run_all_tests({})
 // Returns: {"status": "completed", "failures": 3}
 
 // Step 2: Get detailed error information
-get_test_results({})
+get_testresults({})
 // Returns: {
 //   "failures": [
 //     {"test": "@test foo() == 42", "file": "test_feature.jl:15", ...}
@@ -45,7 +45,7 @@ get_test_results({})
 run_testfiles({"query": "feature"})
 
 // Step 4: Check if fixed
-get_test_results({})
+get_testresults({})
 ```
 
 ## Example 3: Regression Testing
@@ -58,10 +58,10 @@ list_test_blocks({"file_query": ""})
 // Scan for relevant testsets
 
 // Run only the relevant testsets
-run_test_blocks({"testset_query": "authentication"})
+run_testblocks({"testset_query": "authentication"})
 
 // Verify no regressions
-get_test_results({})
+get_testresults({})
 ```
 
 ## Example 4: CI/CD Integration
@@ -78,7 +78,7 @@ start_server()
 
 # Or use directly (pseudo-code):
 result = run_testfiles(Dict("query" => "integration"))
-results = get_test_results(Dict())
+results = get_testresults(Dict())
 
 if results["count"]["total"] > 0
     # Tests failed
@@ -92,13 +92,13 @@ Run only tests matching specific patterns:
 
 ```json
 // Run all "performance" testsets
-run_test_blocks({"testset_query": "performance"})
+run_testblocks({"testset_query": "performance"})
 
 // Run all tests in files matching "integration"
 run_testfiles({"query": "integration"})
 
 // Run specific edge case tests
-run_test_blocks({
+run_testblocks({
   "file_query": "feature",
   "testset_query": "edge"
 })
@@ -145,10 +145,10 @@ list_test_blocks({"file_query": ""})
 // Finds: "Authentication Tests" in test_auth.jl
 
 // 2. Run those tests
-run_test_blocks({"testset_query": "authentication"})
+run_testblocks({"testset_query": "authentication"})
 
 // 3. Check results
-get_test_results({})
+get_testresults({})
 ```
 
 **LLM reports:** "The authentication tests are failing with 2 errors..."
@@ -208,12 +208,12 @@ run_all_tests({})
 ```json
 // 1. Write test
 // 2. Run specific testset
-run_test_blocks({"testset_query": "new feature"})
+run_testblocks({"testset_query": "new feature"})
 // 3. See it fail
-get_test_results({})
+get_testresults({})
 // 4. Implement feature
 // 5. Re-run
-run_test_blocks({"testset_query": "new feature"})
+run_testblocks({"testset_query": "new feature"})
 // 6. Verify pass
 ```
 
@@ -221,12 +221,12 @@ run_test_blocks({"testset_query": "new feature"})
 
 ```json
 // 1. Reproduce bug with test
-run_test_blocks({"testset_query": "bug #123"})
+run_testblocks({"testset_query": "bug #123"})
 // 2. Verify test fails
-get_test_results({})
+get_testresults({})
 // 3. Fix bug
 // 4. Re-run test
-run_test_blocks({"testset_query": "bug #123"})
+run_testblocks({"testset_query": "bug #123"})
 // 5. Verify fix
 ```
 
@@ -235,7 +235,7 @@ run_test_blocks({"testset_query": "bug #123"})
 ```json
 // Run all tests before committing
 run_all_tests({})
-get_test_results({})
+get_testresults({})
 // If results["count"]["total"] == 0, safe to commit
 ```
 
@@ -243,6 +243,6 @@ get_test_results({})
 
 1. **Use empty queries** to see everything: `{"query": ""}`
 2. **Start broad, narrow down:** List all, then filter
-3. **Check results after every run:** `get_test_results({})`
+3. **Check results after every run:** `get_testresults({})`
 4. **Use fuzzy matching:** Type less, match more
 5. **Run specific tests:** Faster feedback than full suite

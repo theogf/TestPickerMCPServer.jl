@@ -41,8 +41,8 @@ Exposes 7 MCP tools for testing Julia packages:
 - `list_test_blocks` - Find @testset blocks
 - `run_all_tests` - Run entire suite
 - `run_testfiles` - Run specific files
-- `run_test_blocks` - Run specific testsets
-- `get_test_results` - Get failures/errors
+- `run_testblocks` - Run specific testsets
+- `get_testresults` - Get failures/errors
 - `activate_package` - Switch to a different package directory (uses the current one by default)
 
 ## Configuration
@@ -73,9 +73,9 @@ To ensure Claude Code consistently uses the testpicker MCP tools instead of runn
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
 - Use `mcp__testpicker__run_testfiles` to run specific test files
-- Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
+- Use `mcp__testpicker__run_testblocks` to run specific @testset blocks
 - Use `mcp__testpicker__list_testfiles` to discover test files
-- Use `mcp__testpicker__get_test_results` to see detailed failures
+- Use `mcp__testpicker__get_testresults` to see detailed failures
 
 Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
 ```

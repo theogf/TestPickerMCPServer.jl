@@ -3,7 +3,7 @@ using Test
 
 @testset "Tool Definitions" begin
     @testset "All tools defined" begin
-        @test length(TestPickerMCPServer.ALL_TOOLS) == 6
+        @test length(TestPickerMCPServer.ALL_TOOLS) == 7
 
         tool_names = [tool.name for tool in TestPickerMCPServer.ALL_TOOLS]
         @test "list_testfiles" in tool_names
@@ -32,7 +32,7 @@ using Test
         @test tool.parameters[1].name == "query"
         @test tool.parameters[1].required == true
 
-        # Test run_test_blocks tool
+        # Test run_testblocks tool
         run_blocks =
             findfirst(t -> t.name == "run_testblocks", TestPickerMCPServer.ALL_TOOLS)
         @test run_blocks !== nothing

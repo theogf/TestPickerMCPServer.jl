@@ -45,7 +45,7 @@ Run the entire test suite.
 """
 const TOOL_RUN_ALL = MCPTool(;
     name = "run_all_tests",
-    description = "Run all tests in the package test suite. Returns status, number of files run, summary of results, and whether there are failures. Use get_test_results to see detailed failure information.",
+    description = "Run all tests in the package test suite. Returns status, number of files run, summary of results, and whether there are failures. Use get_testresults to see detailed failure information.",
     parameters = [],
     handler = handle_run_all_tests,
 )
@@ -70,12 +70,12 @@ const TOOL_RUN_FILES = MCPTool(;
 )
 
 """
-Tool: run_test_blocks
+Tool: run_testblocks
 
 Run specific test block(s)/testset(s) by query.
 """
 const TOOL_RUN_BLOCKS = MCPTool(;
-    name = "run_test_blocks",
+    name = "run_testblocks",
     description = "Run specific @testset blocks matched by fuzzy queries. First filters test files (optional), then filters testsets within those files (required). Useful for running a specific testset without running the entire file.",
     parameters = [
         ToolParameter(;
@@ -92,19 +92,19 @@ const TOOL_RUN_BLOCKS = MCPTool(;
             required = true,
         ),
     ],
-    handler = handle_run_test_blocks,
+    handler = handle_run_testblocks,
 )
 
 """
-Tool: get_test_results
+Tool: get_testresults
 
 Get detailed test results from the last run.
 """
 const TOOL_GET_RESULTS = MCPTool(;
-    name = "get_test_results",
+    name = "get_testresults",
     description = "Retrieve detailed failures and errors from the most recent test run. Returns arrays of failures (assertion failures) and errors (exceptions), each with test expression, file location, error message, and context. Returns empty arrays if all tests passed.",
     parameters = [],
-    handler = handle_get_test_results,
+    handler = handle_get_testresults,
 )
 
 """

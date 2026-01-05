@@ -105,12 +105,12 @@ function handle_run_testfiles(params::Dict{String,Any})
 end
 
 """
-    handle_run_test_blocks(params::Dict{String,Any}) -> Content
+    handle_run_testblocks(params::Dict{String,Any}) -> Content
 
 Run specific test block(s) matched by queries.
 """
-function handle_run_test_blocks(params::Dict{String,Any})
-    with_error_handling("run_test_blocks") do
+function handle_run_testblocks(params::Dict{String,Any})
+    with_error_handling("run_testblocks") do
         testset_query = get(params, "testset_query", "")
         isempty(testset_query) && return TextContent(text = "Error: testset_query required")
 
@@ -146,12 +146,12 @@ function handle_run_test_blocks(params::Dict{String,Any})
 end
 
 """
-    handle_get_test_results(params::Dict{String,Any}) -> Content
+    handle_get_testresults(params::Dict{String,Any}) -> Content
 
 Retrieve test failures and errors from the last test run.
 """
-function handle_get_test_results(params::Dict{String,Any})
-    with_error_handling("get_test_results") do
+function handle_get_testresults(params::Dict{String,Any})
+    with_error_handling("get_testresults") do
         to_json(parse_results_file(SERVER_PKG[]))
     end
 end

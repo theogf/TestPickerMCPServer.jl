@@ -16,9 +16,9 @@ TestPickerMCPServer is an MCP (Model Context Protocol) server that exposes TestP
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
 - Use `mcp__testpicker__run_testfiles` to run specific test files
-- Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
+- Use `mcp__testpicker__run_testblocks` to run specific @testset blocks
 - Use `mcp__testpicker__list_testfiles` to discover test files
-- Use `mcp__testpicker__get_test_results` to see detailed failures
+- Use `mcp__testpicker__get_testresults` to see detailed failures
 
 Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
 
@@ -87,8 +87,8 @@ Available settings:
 - `list_test_blocks` - List @testset blocks within files
 - `run_all_tests` - Run entire test suite
 - `run_testfiles` - Run specific files by fuzzy query
-- `run_test_blocks` - Run specific testsets by fuzzy query
-- `get_test_results` - Retrieve failures/errors from last run
+- `run_testblocks` - Run specific testsets by fuzzy query
+- `get_testresults` - Retrieve failures/errors from last run
 - `activate_package` - Switch active package directory
 
 ## Working with MCP Tools

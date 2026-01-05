@@ -253,11 +253,11 @@ Create a `.claude/CLAUDE.md` or `.claude/CLAUDE.local.md` file in your project r
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
 - Use `mcp__testpicker__run_testfiles` to run specific test files
-- Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
+- Use `mcp__testpicker__run_testblocks` to run specific @testset blocks
 - Use `mcp__testpicker__list_testfiles` to discover test files
 - Use `mcp__testpicker__list_test_blocks` to find @testset blocks
 - Use `mcp__testpicker__run_all_tests` to run the entire test suite
-- Use `mcp__testpicker__get_test_results` to see detailed failures
+- Use `mcp__testpicker__get_testresults` to see detailed failures
 
 Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
 ```
@@ -288,8 +288,8 @@ prompt: |
   When the user asks to run tests, use the testpicker MCP server tools:
   - list_testfiles to discover tests
   - run_testfiles to run specific files (accepts fuzzy queries)
-  - run_test_blocks to run specific @testset blocks
-  - get_test_results to show failures
+  - run_testblocks to run specific @testset blocks
+  - get_testresults to show failures
 
   Always prefer these MCP tools over running Pkg.test() directly.
 ```
@@ -367,7 +367,7 @@ claude
 # Executes tests...
 
 > Show any failures
-# Claude uses get_test_results
+# Claude uses get_testresults
 # Returns detailed failure info
 ```
 
