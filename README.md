@@ -11,7 +11,7 @@
 [![Test workflow status](https://github.com/theogf/TestPickerMCPServer.jl/actions/workflows/Test.yml/badge.svg?branch=main)](https://github.com/theogf/TestPickerMCPServer.jl/actions/workflows/Test.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/theogf/TestPickerMCPServer.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/theogf/TestPickerMCPServer.jl)
 
-<div>
+</div>
 
 > MCP server for [TestPicker.jl](https://github.com/JuliaTesting/TestPicker.jl) - Let LLMs discover, run, and inspect your Julia tests.
 
