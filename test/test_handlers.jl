@@ -15,7 +15,8 @@ using ModelContextProtocol
         @test parsed["count"] >= 0
 
         # Test with query parameter
-        result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}("query" => "test"))
+        result =
+            TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}("query" => "test"))
         @test result isa ModelContextProtocol.TextContent
         parsed = JSON.parse(result.text)
         @test haskey(parsed, "files")
@@ -32,7 +33,7 @@ using ModelContextProtocol
 
         # Test with file query
         result = TestPickerMCPServer.handle_list_test_blocks(
-            Dict{String,Any}("file_query" => "utils")
+            Dict{String,Any}("file_query" => "utils"),
         )
         @test result isa ModelContextProtocol.TextContent
     end
@@ -61,15 +62,29 @@ using ModelContextProtocol
     end
 
     @testset "handle_activate_package - missing dir" begin
-        result = TestPickerMCPServer.handle_activate_package(Dict{String,Any}())
+        original_active = Base.active_project()
+        result = try
+            with_logger(NullLogger()) do
+                TestPickerMCPServer.handle_activate_package(Dict{String,Any}())
+            end
+        finally
+            Pkg.activate(original_active; io = devnull)
+        end
         @test result isa ModelContextProtocol.TextContent
         @test occursin("Error", result.text)
     end
 
     @testset "handle_activate_package - invalid dir" begin
-        result = TestPickerMCPServer.handle_activate_package(
-            Dict{String,Any}("pkg_dir" => "/nonexistent/path")
-        )
+        original_active = Base.active_project()
+        result = try
+            with_logger(NullLogger()) do
+                TestPickerMCPServer.handle_activate_package(
+                    Dict{String,Any}("pkg_dir" => "/nonexistent/path"),
+                )
+            end
+        finally
+            Pkg.activate(original_active; io = devnull)
+        end
         @test result isa ModelContextProtocol.TextContent
         # Should return error in JSON or text
     end

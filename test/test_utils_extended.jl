@@ -1,3 +1,4 @@
+using Base: with_logger, NullLogger
 using TestPickerMCPServer
 using Test
 using JSON
@@ -15,8 +16,10 @@ using Pkg
     end
 
     @testset "with_error_handling - error case" begin
-        result = TestPickerMCPServer.with_error_handling("test_op") do
-            error("Test error")
+        result = with_logger(NullLogger()) do
+            TestPickerMCPServer.with_error_handling("test_op") do
+                error("Test error")
+            end
         end
         @test result isa ModelContextProtocol.TextContent
         @test occursin("Error", result.text)
@@ -70,31 +73,28 @@ using Pkg
     @testset "detect_package" begin
         # Should detect current package (TestPickerMCPServer itself when running tests)
         # Note: This may fail in CI environments with unnamed test projects
-        try
+        Pkg.activate(pkgdir(TestPickerMCPServer)) do
             pkg = TestPickerMCPServer.detect_package()
             @test pkg isa Pkg.Types.PackageSpec
             @test !isnothing(pkg.name)
-        catch e
-            if e isa TestPicker.TestEnvError && contains(e.msg, "unnamed project")
-                @warn "Skipping detect_package test: running in unnamed test environment (CI)"
-                @test_skip true
-            else
-                rethrow()
-            end
         end
     end
 
     @testset "activate_package" begin
         # Test with current directory (should succeed)
         original_active = Base.active_project()
-        TestPickerMCPServer.activate_package(pwd())
-        @test true  # If we get here, no error was thrown
+        try
+            TestPickerMCPServer.activate_package(pwd())
+            @test true  # If we get here, no error was thrown
+        finally
+            Pkg.activate(original_active)
+        end
 
         # Note: Can't easily test invalid paths without side effects
     end
 
     @testset "parse_results_file - structure validation" begin
-        pkg = Pkg.Types.PackageSpec(name="Test", path=pwd())
+        pkg = Pkg.Types.PackageSpec(name = "Test", path = pwd())
         result = TestPickerMCPServer.parse_results_file(pkg)
 
         # Verify structure
