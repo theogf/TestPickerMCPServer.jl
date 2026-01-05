@@ -41,6 +41,6 @@ jobs:
         shell: julia --project=docs --color=yes {0}
         run: |
           using Documenter: DocMeta, doctest
-          using TestPicker
-          DocMeta.setdocmeta!(TestPicker, :DocTestSetup, :(using TestPicker); recursive=true)
+          using TestPickerMCPServer
+          DocMeta.setdocmeta!(TestPicker, :DocTestSetup, :(using TestPickerMCPServer); recursive=true)
           doctest(TestPicker)
