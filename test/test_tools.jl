@@ -12,6 +12,7 @@ using Test
         @test "run_testfiles" in tool_names
         @test "run_testblocks" in tool_names
         @test "get_testresults" in tool_names
+        @test "activate_package" in tool_names
     end
 
     @testset "Tool parameters" begin

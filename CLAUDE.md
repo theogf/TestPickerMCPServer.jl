@@ -12,7 +12,7 @@ TestPickerMCPServer is an MCP (Model Context Protocol) server that exposes TestP
 
 ## Development Commands
 
-# Test Picking with TestPicker MCP
+### Running Tests
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
 - Use `mcp__testpicker__run_testfiles` to run specific test files
@@ -20,7 +20,16 @@ When running tests in this Julia project, ALWAYS use the testpicker MCP server t
 - Use `mcp__testpicker__list_testfiles` to discover test files
 - Use `mcp__testpicker__get_testresults` to see detailed failures
 
-Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.
+**Test Organization:**
+- `test_utils.jl` - Basic utility function tests
+- `test_utils_extended.jl` - Extended utility tests (error handling, edge cases)
+- `test_config.jl` - Configuration system tests (ENV vars, defaults, precedence)
+- `test_tools.jl` - Tool definition validation
+- `test_handlers.jl` - Handler function unit tests
+- `test_server.jl` - Server module tests
+- `test_integration.jl` - End-to-end integration tests
+
+Never use `julia --project=. -e 'Pkg.test()'` directly - prefer the testpicker tools.
 
 ### Documentation
 ```bash

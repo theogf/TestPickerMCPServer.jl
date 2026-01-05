@@ -25,7 +25,7 @@ module TestPickerMCPServer
 using ModelContextProtocol
 using TestPicker
 using TestPicker: INTERFACES
-using Pkg: PackageSpec
+using Pkg
 using JSON
 using Preferences
 
