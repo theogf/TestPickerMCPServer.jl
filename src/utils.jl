@@ -24,19 +24,6 @@ function detect_package()
 end
 
 """
-    activate_package(pkg_dir::String)
-
-Activate the Julia package environment at the specified directory.
-
-# Arguments
-- `pkg_dir::String`: Path to the package directory to activate
-"""
-function activate_package(pkg_dir::String)
-    @info "Activating package environment at: $pkg_dir"
-    Pkg.activate(pkg_dir)
-end
-
-"""
     to_json(data) -> TextContent
 
 Convert data to JSON and wrap in TextContent. DRY helper for all handlers.

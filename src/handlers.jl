@@ -216,7 +216,7 @@ function handle_activate_package(params::Dict{String,Any})
         !isdir(pkg_dir) && error("Directory does not exist: $pkg_dir")
 
         # Activate the package environment
-        activate_package(pkg_dir)
+        Pkg.activate(pkg_dir)
 
         # Re-detect and update the cached package
         SERVER_PKG[] = detect_package()
