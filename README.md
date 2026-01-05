@@ -1,9 +1,17 @@
 # TestPickerMCPServer
 
+<div align="center">
+  <picture>
+    <source srcset="assets/logo_dark.png" media="(prefers-color-scheme: dark)" width="350" height="350">
+    <img src="assets/logo_light.png" width="350" height="350">
+  </picture>
+
 [![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://theogf.github.io/TestPickerMCPServer.jl/stable)
 [![Development documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://theogf.github.io/TestPickerMCPServer.jl/dev)
 [![Test workflow status](https://github.com/theogf/TestPickerMCPServer.jl/actions/workflows/Test.yml/badge.svg?branch=main)](https://github.com/theogf/TestPickerMCPServer.jl/actions/workflows/Test.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/theogf/TestPickerMCPServer.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/theogf/TestPickerMCPServer.jl)
+
+<div>
 
 > MCP server for [TestPicker.jl](https://github.com/JuliaTesting/TestPicker.jl) - Let LLMs discover, run, and inspect your Julia tests.
 
