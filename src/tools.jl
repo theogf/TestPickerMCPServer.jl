@@ -1,10 +1,10 @@
 """
-Tool: list_test_files
+Tool: list_testfiles
 
 List all test files in the current Julia package.
 """
 const TOOL_LIST_FILES = MCPTool(;
-    name = "list_test_files",
+    name = "list_testfiles",
     description = "List all test files in the current Julia package. Returns test directory path, list of test files (relative paths), and count. Optionally filter files with a fuzzy query string.",
     parameters = [
         ToolParameter(;
@@ -15,7 +15,7 @@ const TOOL_LIST_FILES = MCPTool(;
             default = "",
         ),
     ],
-    handler = handle_list_test_files,
+    handler = handle_list_testfiles,
 )
 
 """
@@ -51,12 +51,12 @@ const TOOL_RUN_ALL = MCPTool(;
 )
 
 """
-Tool: run_test_files
+Tool: run_testfiles
 
 Run specific test file(s) by query.
 """
 const TOOL_RUN_FILES = MCPTool(;
-    name = "run_test_files",
+    name = "run_testfiles",
     description = "Run specific test file(s) matched by a fuzzy query string. The query is matched against test file paths (e.g., 'feature' runs test_feature.jl). Returns list of files run and execution status.",
     parameters = [
         ToolParameter(;
@@ -66,7 +66,7 @@ const TOOL_RUN_FILES = MCPTool(;
             required = true,
         ),
     ],
-    handler = handle_run_test_files,
+    handler = handle_run_testfiles,
 )
 
 """

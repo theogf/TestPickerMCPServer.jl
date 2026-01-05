@@ -37,10 +37,10 @@ Or manually add to `.mcp.json` (see this minimal [.mcp.json](.mcp.json) for refe
 ## What It Does
 
 Exposes 7 MCP tools for testing Julia packages:
-- `list_test_files` - Discover test files
+- `list_testfiles` - Discover test files
 - `list_test_blocks` - Find @testset blocks
 - `run_all_tests` - Run entire suite
-- `run_test_files` - Run specific files
+- `run_testfiles` - Run specific files
 - `run_test_blocks` - Run specific testsets
 - `get_test_results` - Get failures/errors
 - `activate_package` - Switch to a different package directory (uses the current one by default)
@@ -72,9 +72,9 @@ To ensure Claude Code consistently uses the testpicker MCP tools instead of runn
 # Test Picking with TestPicker MCP
 
 When running tests in this Julia project, ALWAYS use the testpicker MCP server tools:
-- Use `mcp__testpicker__run_test_files` to run specific test files
+- Use `mcp__testpicker__run_testfiles` to run specific test files
 - Use `mcp__testpicker__run_test_blocks` to run specific @testset blocks
-- Use `mcp__testpicker__list_test_files` to discover test files
+- Use `mcp__testpicker__list_testfiles` to discover test files
 - Use `mcp__testpicker__get_test_results` to see detailed failures
 
 Never use `julia --project -e 'Pkg.test()'` directly - prefer the testpicker tools.

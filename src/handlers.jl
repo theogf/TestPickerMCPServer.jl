@@ -1,10 +1,10 @@
 """
-    handle_list_test_files(params::Dict{String,Any}) -> Content
+    handle_list_testfiles(params::Dict{String,Any}) -> Content
 
 List all test files in the current package, optionally filtered by query.
 """
-function handle_list_test_files(params::Dict{String,Any})
-    with_error_handling("list_test_files") do
+function handle_list_testfiles(params::Dict{String,Any})
+    with_error_handling("list_testfiles") do
         test_dir, files = TestPicker.get_test_files(SERVER_PKG[])
         files = filter_files(files, get(params, "query", ""))
         to_json(Dict("test_dir" => test_dir, "files" => files, "count" => length(files)))
@@ -67,12 +67,12 @@ function handle_run_all_tests(::Dict{String,Any})
 end
 
 """
-    handle_run_test_files(params::Dict{String,Any}) -> Content
+    handle_run_testfiles(params::Dict{String,Any}) -> Content
 
 Run specific test file(s) matched by query.
 """
-function handle_run_test_files(params::Dict{String,Any})
-    with_error_handling("run_test_files") do
+function handle_run_testfiles(params::Dict{String,Any})
+    with_error_handling("run_testfiles") do
         query = get(params, "query", "")
         isempty(query) && return TextContent(text = "Error: query required")
 
