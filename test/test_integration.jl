@@ -33,7 +33,7 @@ end
             @test endswith(path, "TestPickerMCPServer")
 
             # Verify test directory exists
-            test_dir = joinpath(path, "test")
+            test_dir = joinpath(pkg.path, "test")
             @test isdir(test_dir)
 
             # Verify we have the expected test files
@@ -65,7 +65,7 @@ end
             @test parsed["count"] == 8
 
             # Verify test_dir points to correct location
-            @test endswith(parsed["test_dir"], "TestPickerMCPServer/test")
+            @test endswith(parsed["test_dir"], r"TestPickerMCPServer(\.jl)?/test")
 
             # Step 2: Filter for specific files
             result = TestPickerMCPServer.handle_list_testfiles(
