@@ -6,6 +6,20 @@ using ModelContextProtocol
 using Pkg
 using TestPicker
 
+"""
+Execute function without recording test results in the current testset.
+Disables test printing and clears results after execution.
+"""
+function without_recording_tests(f)
+    try
+        Test.TESTSET_PRINT_ENABLE[] = false
+        f()
+    finally
+        empty!(Test.get_testset().results)
+        Test.TESTSET_PRINT_ENABLE[] = true
+    end
+end
+
 function with_dummy_pkg(f, verbose = false)
     redirect_stderr(verbose ? stderr : devnull) do
         with_logger(NullLogger()) do
@@ -171,13 +185,8 @@ end
     @testset "Test results workflow" begin
         with_dummy_pkg() do
             # Run test_failures.jl which has intentional failures and errors
-            try
-                Test.TESTSET_PRINT_ENABLE[] = false
+            without_recording_tests() do
                 TestPicker.fzf_testfile("test_failures"; interactive = false)
-            finally
-                # We clean the results we got from this run.
-                empty!(Test.get_testset().results)
-                Test.TESTSET_PRINT_ENABLE[] = true
             end
             # Get current test results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
@@ -265,17 +274,14 @@ end
                 @test handler isa Function
 
                 # Test that handler can be called (may error on content, but should be callable)
-                result = try
-                    Test.TESTSET_PRINT_ENABLE[] = false
-                    handler(Dict{String,Any}())
-                catch e
-
-                    # Some handlers require specific params, which is ok
-                    # Just verify it's a proper function
-                    true
-                finally
-                    Test.TESTSET_PRINT_ENABLE[] = true
-                    empty!(Test.get_testset().results)
+                result = without_recording_tests() do
+                    try
+                        handler(Dict{String,Any}())
+                    catch e
+                        # Some handlers require specific params, which is ok
+                        # Just verify it's a proper function
+                        true
+                    end
                 end
                 @test result == true || result isa ModelContextProtocol.Content
             end
