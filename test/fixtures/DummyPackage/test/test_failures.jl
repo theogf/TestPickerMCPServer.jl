@@ -1,5 +1,8 @@
 # This test file contains intentional failures and errors for testing purposes
 # These tests are expected to fail/error when run
+using Test
+using DummyPackage
+
 
 @testset "Intentional Failures" begin
     @testset "Arithmetic Failures" begin

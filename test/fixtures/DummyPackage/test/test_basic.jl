@@ -1,3 +1,6 @@
+using Test
+using DummyPackage
+
 @testset "String Operations" begin
     @testset "Greeting Function" begin
         @test greet("Alice") == "Hello, Alice!"

@@ -1,3 +1,6 @@
+using Test
+using DummyPackage
+
 @testset "Addition" begin
     @testset "Positive Numbers" begin
         @test add(2, 3) == 5
