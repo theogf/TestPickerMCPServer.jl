@@ -4,11 +4,27 @@ using Test
 using JSON
 using ModelContextProtocol
 using Pkg
+using TestPicker
 
 function with_tp_pkg(f)
     redirect_stderr(devnull) do
         Pkg.activate(pkgdir(TestPickerMCPServer)) do
             # Simulate start of server
+            TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
+            try
+                f()
+            finally
+                TestPickerMCPServer.SERVER_PKG[] = nothing
+            end
+        end
+    end
+end
+
+function with_dummy_pkg(f)
+    redirect_stderr(devnull) do
+        dummy_pkg_path = abspath(joinpath(pkgdir(TestPickerMCPServer), "test/fixtures/DummyPackage"))
+        Pkg.activate(dummy_pkg_path) do
+            # Simulate start of server with DummyPackage
             TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
             try
                 f()
@@ -42,53 +58,58 @@ end
     end
 
     @testset "List and filter test files workflow" begin
-        # Step 1: List all test files
-        with_tp_pkg() do
+        # Step 1: List all test files in DummyPackage
+        with_dummy_pkg() do
             result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
             all_files = parsed["files"]
 
-            # Verify we found the actual test files in this package
+            # Verify we found the exact test files in DummyPackage
             expected_files = [
-                "test_utils.jl",
-                "test_config.jl",
-                "test_handlers.jl",
-                "test_integration.jl",
-                "test_server.jl",
-                "test_tools.jl",
-                "test_utils_extended.jl",
+                "test_basic.jl",
+                "test_math.jl",
+                "test_failures.jl",
                 "runtests.jl",
             ]
             @test issetequal(expected_files, all_files)
-            @test parsed["count"] == 8
+            @test parsed["count"] == 4
 
-            # Verify test_dir points to correct location
-            @test endswith(parsed["test_dir"], r"TestPickerMCPServer(\.jl)?/test")
+            # Verify test_dir points to DummyPackage test location
+            @test endswith(parsed["test_dir"], r"DummyPackage/test")
 
             # Step 2: Filter for specific files
             result = TestPickerMCPServer.handle_list_testfiles(
-                Dict{String,Any}("query" => "utils"),
+                Dict{String,Any}("query" => "basic"),
             )
             parsed = JSON.parse(result.text)
             filtered_files = parsed["files"]
 
-            # Should find both utils files
-            @test issubset(["test_utils.jl", "test_utils_extended.jl"], filtered_files)
-            @test length(filtered_files) == 2
+            # Should find only test_basic.jl
+            @test filtered_files == ["test_basic.jl"]
+            @test parsed["count"] == 1
 
-            # Test filtering for config
+            # Test filtering for math
             result = TestPickerMCPServer.handle_list_testfiles(
-                Dict{String,Any}("query" => "config"),
+                Dict{String,Any}("query" => "math"),
             )
             parsed = JSON.parse(result.text)
-            @test parsed["files"] == ["test_config.jl"]
+            @test parsed["files"] == ["test_math.jl"]
+            @test parsed["count"] == 1
+
+            # Test filtering for failures
+            result = TestPickerMCPServer.handle_list_testfiles(
+                Dict{String,Any}("query" => "failures"),
+            )
+            parsed = JSON.parse(result.text)
+            @test parsed["files"] == ["test_failures.jl"]
+            @test parsed["count"] == 1
         end
     end
 
     @testset "List test blocks workflow" begin
-        with_tp_pkg() do
-            # Get test blocks from all files
+        with_dummy_pkg() do
+            # Get test blocks from all files in DummyPackage
             result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
@@ -96,6 +117,9 @@ end
             @test haskey(parsed, "testblocks")
             @test haskey(parsed, "count")
             @test parsed["count"] == length(parsed["testblocks"])
+
+            # DummyPackage has exactly 34 testsets total
+            @test parsed["count"] == 34
 
             # Verify each block has required fields
             for block in parsed["testblocks"]
@@ -106,38 +130,45 @@ end
                 @test block["line_end"] >= block["line_start"]
             end
 
-            # Test filtering by file query
+            # Test filtering by file query - test_basic.jl
             result = TestPickerMCPServer.handle_list_testblocks(
-                Dict{String,Any}("file_query" => "utils"),
+                Dict{String,Any}("file_query" => "basic"),
             )
             parsed = JSON.parse(result.text)
 
-            # Should find test blocks only from utils files
-            if parsed["count"] > 0
-                for block in parsed["testblocks"]
-                    @test contains(block["file"], "utils")
-                end
+            # test_basic.jl has exactly 11 testsets
+            @test parsed["count"] == 11
+            for block in parsed["testblocks"]
+                @test contains(block["file"], "test_basic")
             end
 
-            # Look for specific test blocks in test_tools.jl
+            # Look for specific test blocks in test_basic.jl
+            labels = Set([block["label"] for block in parsed["testblocks"]])
+            @test "String Operations" in labels
+            @test "Greeting Function" in labels
+            @test "Reverse String" in labels
+            @test "Utility Functions" in labels
+
+            # Test filtering for test_math.jl
             result = TestPickerMCPServer.handle_list_testblocks(
-                Dict{String,Any}("file_query" => "tools"),
+                Dict{String,Any}("file_query" => "math"),
             )
             parsed = JSON.parse(result.text)
 
-            if parsed["count"] > 0
-                # Check for known testsets in test_tools.jl
-                labels = [block["label"] for block in parsed["testblocks"]]
-                @test any(contains(label, "Tool") for label in labels)
-            end
+            # test_math.jl has exactly 13 testsets
+            @test parsed["count"] == 13
+            labels = Set([block["label"] for block in parsed["testblocks"]])
+            @test "Addition" in labels
+            @test "Multiplication" in labels
+            @test "Integer Operations" in labels
         end
     end
 
     @testset "Run tests workflow" begin
-        with_tp_pkg() do
-            # Run a specific test file from this package
+        with_dummy_pkg() do
+            # Run a specific test file from DummyPackage
             result = TestPickerMCPServer.handle_run_testfiles(
-                Dict{String,Any}("query" => "test_tools.jl"),
+                Dict{String,Any}("query" => "test_basic"),
             )
             @test result isa ModelContextProtocol.TextContent
             parsed = JSON.parse(result.text)
@@ -147,18 +178,14 @@ end
             @test haskey(parsed, "files_run")
             @test parsed["status"] in ["completed", "failed"]
             @test length(parsed["files_run"]) >= 1
-
-            # The file that ran should be test_tools.jl
-            if haskey(parsed, "summary")
-                @test contains(parsed["summary"], "test_tools")
-            end
+            @test "test_basic.jl" in parsed["files_run"]
         end
     end
 
     @testset "Test results workflow" begin
-        with_tp_pkg() do
-            # Run a set of tests.
-            TestPicker.fzf_testfile("test_tools.jl"; interactive = false)
+        with_dummy_pkg() do
+            # Run test_failures.jl which has intentional failures and errors
+            TestPicker.fzf_testfile("test_failures"; interactive = false)
             # Get current test results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
@@ -176,13 +203,17 @@ end
             @test parsed["count"]["total"] ==
                   parsed["count"]["failures"] + parsed["count"]["errors"]
 
+            # test_failures.jl should have failures and errors
+            @test parsed["count"]["total"] > 0
+
             # Verify result structure for any failures/errors
             for failure in parsed["failures"]
                 @test haskey(failure, "test")
                 @test haskey(failure, "file")
                 @test haskey(failure, "error")
                 @test haskey(failure, "context")
-                # File should be a real test file
+                # File should be test_failures.jl
+                @test contains(failure["file"], "test_failures")
                 @test endswith(failure["file"], ".jl")
             end
 
@@ -191,7 +222,8 @@ end
                 @test haskey(error, "file")
                 @test haskey(error, "error")
                 @test haskey(error, "context")
-                # File should be a real test file
+                # File should be test_failures.jl
+                @test contains(error["file"], "test_failures")
                 @test endswith(error["file"], ".jl")
             end
         end
@@ -271,58 +303,60 @@ end
     end
 
     @testset "Complete MCP workflow simulation" begin
-        # This simulates a typical MCP Inspector workflow
-        with_tp_pkg() do
+        # This simulates a typical MCP Inspector workflow with DummyPackage
+        with_dummy_pkg() do
 
             # 1. Discover what test files are available
             result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
             parsed = JSON.parse(result.text)
-            @test parsed["count"] > 0
-            @test "test_utils.jl" in parsed["files"]
+            @test parsed["count"] == 4
+            @test "test_basic.jl" in parsed["files"]
+            @test "test_math.jl" in parsed["files"]
+            @test "test_failures.jl" in parsed["files"]
 
             # 2. Filter for a specific test file
             result = TestPickerMCPServer.handle_list_testfiles(
-                Dict{String,Any}("query" => "utils"),
+                Dict{String,Any}("query" => "basic"),
             )
             parsed = JSON.parse(result.text)
-            @test length(parsed["files"]) >= 1
-            @test all(f -> contains(f, "utils"), parsed["files"])
+            @test parsed["count"] == 1
+            @test parsed["files"] == ["test_basic.jl"]
 
             # 3. Run that specific test file
             result = TestPickerMCPServer.handle_run_testfiles(
-                Dict{String,Any}("query" => "test_utils"),
+                Dict{String,Any}("query" => "test_basic"),
             )
             parsed = JSON.parse(result.text)
             @test parsed["status"] in ["completed", "failed"]
-            @test length(parsed["files_run"]) >= 1
+            @test "test_basic.jl" in parsed["files_run"]
 
             # 4. Check results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
             parsed = JSON.parse(result.text)
             @test haskey(parsed, "count")
 
-            # If tests passed, should have no failures
-            if parsed["count"]["total"] == 0
-                @test isempty(parsed["failures"])
-                @test isempty(parsed["errors"])
-            end
+            # test_basic.jl has all passing tests, so no failures
+            @test parsed["count"]["total"] == 0
+            @test isempty(parsed["failures"])
+            @test isempty(parsed["errors"])
 
             # 5. List available test blocks
             result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             parsed = JSON.parse(result.text)
             @test haskey(parsed, "testblocks")
-            @test haskey(parsed, "count")
+            @test parsed["count"] == 34
         end
     end
 
     @testset "Cross-tool consistency" begin
-        # Verify that file counts are consistent across tools
+        # Verify that file counts are consistent across tools in DummyPackage
 
-        with_tp_pkg() do
+        with_dummy_pkg() do
             # Get files via list_testfiles
             result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
             parsed = JSON.parse(result.text)
             file_count = parsed["count"]
+            @test file_count == 4
 
             # Verify SERVER_PKG has same test files
             pkg = TestPickerMCPServer.SERVER_PKG[]
@@ -335,13 +369,14 @@ end
             result = TestPickerMCPServer.handle_list_testblocks(Dict{String,Any}())
             parsed = JSON.parse(result.text)
 
-            if parsed["count"] > 0
-                # All block files should be in our test files list
-                block_files = unique([block["file"] for block in parsed["testblocks"]])
-                for file in block_files
-                    filename = basename(file)
-                    @test filename in actual_files
-                end
+            # DummyPackage should have exactly 34 testsets
+            @test parsed["count"] == 34
+
+            # All block files should be in our test files list
+            block_files = unique([block["file"] for block in parsed["testblocks"]])
+            for file in block_files
+                filename = basename(file)
+                @test filename in actual_files
             end
         end
     end

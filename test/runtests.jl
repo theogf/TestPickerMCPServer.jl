@@ -10,4 +10,6 @@ using Pkg
     include("test_handlers.jl")
     include("test_server.jl")
     include("test_integration.jl")
+    include("test_dummy_package_handlers.jl")
+    include("test_server_async.jl")
 end
