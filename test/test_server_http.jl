@@ -13,7 +13,7 @@ function with_server(
     f,
     pkg_dir::String = pwd();
     host::String = "127.0.0.1",
-    port::Int = 8765,
+    port::Integer = 8765,
 )
     # Create server with environment variables set
     server = withenv(
@@ -56,7 +56,7 @@ Helper function to send an MCP tool call via HTTP.
 """
 function call_mcp_tool(
     host::String,
-    port::Int,
+    port::Integer,
     tool_name::String,
     params::Dict{String,Any} = Dict{String,Any}(),
 )

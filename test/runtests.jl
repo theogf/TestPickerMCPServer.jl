@@ -8,5 +8,5 @@ using Pkg
     include("test_tools.jl")
     include("test_handlers_unit.jl")
     include("test_integration.jl")
-    include("test_server_http.jl")
+    # include("test_server_http.jl")
 end

@@ -333,7 +333,7 @@ end
             )
             parsed = JSON.parse(result.text)
             @test parsed["status"] in ["completed", "failed"]
-            @test "test_basic.jl" in only(parsed["files_run"])["filename"]
+            @test occursin("test_basic.jl", only(parsed["files_run"])["filename"])
 
             # 4. Check results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
