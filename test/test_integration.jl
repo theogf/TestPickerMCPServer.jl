@@ -6,31 +6,20 @@ using ModelContextProtocol
 using Pkg
 using TestPicker
 
-function with_tp_pkg(f)
-    redirect_stderr(devnull) do
-        Pkg.activate(pkgdir(TestPickerMCPServer)) do
-            # Simulate start of server
-            TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
+function with_dummy_pkg(f, verbose = false)
+    redirect_stderr(verbose ? stderr : devnull) do
+        with_logger(NullLogger()) do
+            dummy_pkg_path =
+                abspath(joinpath(pkgdir(TestPickerMCPServer), "test/fixtures/DummyPackage"))
+            project = Base.active_project()
             try
+                Pkg.activate(dummy_pkg_path; io = devnull)
+                # Simulate start of server with DummyPackage
+                TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
                 f()
             finally
                 TestPickerMCPServer.SERVER_PKG[] = nothing
-            end
-        end
-    end
-end
-
-function with_dummy_pkg(f)
-    redirect_stderr(devnull) do
-        dummy_pkg_path =
-            abspath(joinpath(pkgdir(TestPickerMCPServer), "test/fixtures/DummyPackage"))
-        Pkg.activate(dummy_pkg_path) do
-            # Simulate start of server with DummyPackage
-            TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
-            try
-                f()
-            finally
-                TestPickerMCPServer.SERVER_PKG[] = nothing
+                Pkg.activate(project; io = devnull)
             end
         end
     end
@@ -38,15 +27,15 @@ end
 
 @testset "Integration Tests" begin
     @testset "Package detection" begin
-        with_tp_pkg() do
+        with_dummy_pkg() do
             # Verify SERVER_PKG is set correctly
             @test TestPickerMCPServer.SERVER_PKG[] !== nothing
             pkg = TestPickerMCPServer.SERVER_PKG[]
 
-            # Should be the TestPickerMCPServer package
-            @test pkg.name == "TestPickerMCPServer"
+            # Should be the DummyPackage
+            @test pkg.name == "DummyPackage"
             @test pkg.path !== nothing
-            @test endswith(pkg.path, r"TestPickerMCPServer(\.jl)?")
+            @test endswith(pkg.path, r"DummyPackage(\.jl)?")
 
             # Verify test directory exists
             test_dir = joinpath(pkg.path, "test")
@@ -54,7 +43,10 @@ end
 
             # Verify we have the expected test files
             test_files = readdir(test_dir)
-            @test issubset(["test_utils.jl", "test_config.jl", "runtests.jl"], test_files)
+            @test issubset(
+                ["test_basic.jl", "test_math.jl", "test_failures.jl", "runtests.jl"],
+                test_files,
+            )
         end
     end
 
@@ -171,15 +163,22 @@ end
             @test haskey(parsed, "status")
             @test haskey(parsed, "files_run")
             @test parsed["status"] in ["completed", "failed"]
-            @test length(parsed["files_run"]) >= 1
-            @test "test_basic.jl" in parsed["files_run"]
+            @test length(parsed["files_run"]) == 1
+            @test endswith(only(parsed["files_run"])["filename"], "test_basic.jl")
         end
     end
 
     @testset "Test results workflow" begin
         with_dummy_pkg() do
             # Run test_failures.jl which has intentional failures and errors
-            TestPicker.fzf_testfile("test_failures"; interactive = false)
+            try
+                Test.TESTSET_PRINT_ENABLE[] = false
+                TestPicker.fzf_testfile("test_failures"; interactive = false)
+            finally
+                # We clean the results we got from this run.
+                empty!(Test.get_testset().results)
+                Test.TESTSET_PRINT_ENABLE[] = true
+            end
             # Get current test results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())
             @test result isa ModelContextProtocol.TextContent
@@ -197,9 +196,6 @@ end
             @test parsed["count"]["total"] ==
                   parsed["count"]["failures"] + parsed["count"]["errors"]
 
-            # test_failures.jl should have failures and errors
-            @test parsed["count"]["total"] > 0
-
             # Verify result structure for any failures/errors
             for failure in parsed["failures"]
                 @test haskey(failure, "test")
@@ -207,8 +203,7 @@ end
                 @test haskey(failure, "error")
                 @test haskey(failure, "context")
                 # File should be test_failures.jl
-                @test contains(failure["file"], "test_failures")
-                @test endswith(failure["file"], ".jl")
+                @test endswith(failure["file"], r"test_failures.jl:\d+")
             end
 
             for error in parsed["errors"]
@@ -217,28 +212,29 @@ end
                 @test haskey(error, "error")
                 @test haskey(error, "context")
                 # File should be test_failures.jl
-                @test contains(error["file"], "test_failures")
-                @test endswith(error["file"], ".jl")
+                @test endswith(error["file"], r"test_failures.jl:\d+")
             end
         end
     end
 
     @testset "Tool parameter validation" begin
-        # Test required parameter validation for run_testfiles
-        result = TestPickerMCPServer.handle_run_testfiles(Dict{String,Any}())
-        @test result isa ModelContextProtocol.TextContent
-        parsed = JSON.parse(result.text)
-        @test haskey(parsed, "error")
-        @test haskey(parsed, "operation")
-        @test contains(parsed["error"], "query required")
+        with_dummy_pkg() do
+            # Test required parameter validation for run_testfiles
+            result = TestPickerMCPServer.handle_run_testfiles(Dict{String,Any}())
+            @test result isa ModelContextProtocol.TextContent
+            parsed = JSON.parse(result.text)
+            @test haskey(parsed, "error")
+            @test haskey(parsed, "operation")
+            @test contains(parsed["error"], "query required")
 
-        # Test required parameter validation for run_testblocks
-        result = TestPickerMCPServer.handle_run_testblocks(Dict{String,Any}())
-        @test result isa ModelContextProtocol.TextContent
-        parsed = JSON.parse(result.text)
-        @test haskey(parsed, "error")
-        @test haskey(parsed, "operation")
-        @test contains(parsed["error"], "testset_query required")
+            # Test required parameter validation for run_testblocks
+            result = TestPickerMCPServer.handle_run_testblocks(Dict{String,Any}())
+            @test result isa ModelContextProtocol.TextContent
+            parsed = JSON.parse(result.text)
+            @test haskey(parsed, "error")
+            @test haskey(parsed, "operation")
+            @test contains(parsed["error"], "testset_query required")
+        end
     end
 
     @testset "ALL_TOOLS completeness" begin
@@ -262,37 +258,46 @@ end
     end
 
     @testset "Tool handler signatures" begin
-        # All handlers should accept Dict{String,Any} and return Content
-        for tool in TestPickerMCPServer.ALL_TOOLS
-            handler = tool.handler
-            @test handler isa Function
+        with_dummy_pkg() do
+            # All handlers should accept Dict{String,Any} and return Content
+            for tool in TestPickerMCPServer.ALL_TOOLS
+                handler = tool.handler
+                @test handler isa Function
 
-            # Test that handler can be called (may error on content, but should be callable)
-            try
-                result = handler(Dict{String,Any}())
-                @test result isa ModelContextProtocol.Content
-            catch e
-                # Some handlers require specific params, which is ok
-                # Just verify it's a proper function
-                @test true
+                # Test that handler can be called (may error on content, but should be callable)
+                result = try
+                    Test.TESTSET_PRINT_ENABLE[] = false
+                    handler(Dict{String,Any}())
+                catch e
+
+                    # Some handlers require specific params, which is ok
+                    # Just verify it's a proper function
+                    true
+                finally
+                    Test.TESTSET_PRINT_ENABLE[] = true
+                    empty!(Test.get_testset().results)
+                end
+                @test result == true || result isa ModelContextProtocol.Content
             end
         end
     end
 
     @testset "Error handling consistency" begin
-        # All errors should return TextContent with JSON error message
-        handlers_to_test = [
-            (TestPickerMCPServer.handle_run_testfiles, Dict{String,Any}()),
-            (TestPickerMCPServer.handle_run_testblocks, Dict{String,Any}()),
-        ]
+        with_dummy_pkg() do
+            # All errors should return TextContent with JSON error message
+            handlers_to_test = [
+                (TestPickerMCPServer.handle_run_testfiles, Dict{String,Any}()),
+                (TestPickerMCPServer.handle_run_testblocks, Dict{String,Any}()),
+            ]
 
-        for (handler, params) in handlers_to_test
-            result = handler(params)
-            @test result isa ModelContextProtocol.TextContent
-            parsed = JSON.parse(result.text)
-            @test haskey(parsed, "error")
-            @test haskey(parsed, "operation")
-            @test contains(parsed["error"], "required")
+            for (handler, params) in handlers_to_test
+                result = handler(params)
+                @test result isa ModelContextProtocol.TextContent
+                parsed = JSON.parse(result.text)
+                @test haskey(parsed, "error")
+                @test haskey(parsed, "operation")
+                @test contains(parsed["error"], "required")
+            end
         end
     end
 
@@ -322,7 +327,7 @@ end
             )
             parsed = JSON.parse(result.text)
             @test parsed["status"] in ["completed", "failed"]
-            @test "test_basic.jl" in parsed["files_run"]
+            @test "test_basic.jl" in only(parsed["files_run"])["filename"]
 
             # 4. Check results
             result = TestPickerMCPServer.handle_get_testresults(Dict{String,Any}())

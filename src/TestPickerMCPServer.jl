@@ -99,8 +99,8 @@ start_server()
 This function blocks until the server is stopped.
 """
 function start_server(pkg_dir::String = pwd())
-    # Activate the package environment if a directory is specified
-    activate_package(pkg_dir)
+    # Activate the package environment
+    Pkg.activate(pkg_dir)
 
     # Detect and cache package
     SERVER_PKG[] = detect_package()
