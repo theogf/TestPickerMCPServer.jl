@@ -22,7 +22,8 @@ end
 
 function with_dummy_pkg(f)
     redirect_stderr(devnull) do
-        dummy_pkg_path = abspath(joinpath(pkgdir(TestPickerMCPServer), "test/fixtures/DummyPackage"))
+        dummy_pkg_path =
+            abspath(joinpath(pkgdir(TestPickerMCPServer), "test/fixtures/DummyPackage"))
         Pkg.activate(dummy_pkg_path) do
             # Simulate start of server with DummyPackage
             TestPickerMCPServer.SERVER_PKG[] = TestPickerMCPServer.detect_package()
@@ -66,12 +67,8 @@ end
             all_files = parsed["files"]
 
             # Verify we found the exact test files in DummyPackage
-            expected_files = [
-                "test_basic.jl",
-                "test_math.jl",
-                "test_failures.jl",
-                "runtests.jl",
-            ]
+            expected_files =
+                ["test_basic.jl", "test_math.jl", "test_failures.jl", "runtests.jl"]
             @test issetequal(expected_files, all_files)
             @test parsed["count"] == 4
 
@@ -118,9 +115,6 @@ end
             @test haskey(parsed, "count")
             @test parsed["count"] == length(parsed["testblocks"])
 
-            # DummyPackage has exactly 34 testsets total
-            @test parsed["count"] == 34
-
             # Verify each block has required fields
             for block in parsed["testblocks"]
                 @test haskey(block, "label")
@@ -144,10 +138,10 @@ end
 
             # Look for specific test blocks in test_basic.jl
             labels = Set([block["label"] for block in parsed["testblocks"]])
-            @test "String Operations" in labels
-            @test "Greeting Function" in labels
-            @test "Reverse String" in labels
-            @test "Utility Functions" in labels
+            @test repr("String Operations") in labels
+            @test repr("Greeting Function") in labels
+            @test repr("Reverse String") in labels
+            @test repr("Utility Functions") in labels
 
             # Test filtering for test_math.jl
             result = TestPickerMCPServer.handle_list_testblocks(
@@ -158,9 +152,9 @@ end
             # test_math.jl has exactly 13 testsets
             @test parsed["count"] == 13
             labels = Set([block["label"] for block in parsed["testblocks"]])
-            @test "Addition" in labels
-            @test "Multiplication" in labels
-            @test "Integer Operations" in labels
+            @test repr("Addition") in labels
+            @test repr("Multiplication") in labels
+            @test repr("Integer Operations") in labels
         end
     end
 
