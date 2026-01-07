@@ -1,0 +1,7 @@
+name = "DummyPackage"
+uuid = "1b2f3f05-fc37-485e-83fb-9da861538fc2"
+authors = ["TestPickerMCPServer Contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.10"

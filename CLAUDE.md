@@ -21,13 +21,12 @@ When running tests in this Julia project, ALWAYS use the testpicker MCP server t
 - Use `mcp__testpicker__get_testresults` to see detailed failures
 
 **Test Organization:**
-- `test_utils.jl` - Basic utility function tests
-- `test_utils_extended.jl` - Extended utility tests (error handling, edge cases)
+- `test_utils.jl` - Comprehensive utility function tests (merged from basic + extended tests)
 - `test_config.jl` - Configuration system tests (ENV vars, defaults, precedence)
 - `test_tools.jl` - Tool definition validation
-- `test_handlers.jl` - Handler function unit tests
-- `test_server.jl` - Server module tests
-- `test_integration.jl` - End-to-end integration tests
+- `test_handlers_unit.jl` - Handler function unit tests on TestPickerMCPServer package
+- `test_integration.jl` - End-to-end integration tests with DummyPackage fixture
+- `test_server_http.jl` - HTTP transport tests
 
 Never use `julia --project=. -e 'Pkg.test()'` directly - prefer the testpicker tools.
 
@@ -44,7 +43,7 @@ julia --project=docs docs/make.jl
 ### Three-Layer Architecture
 
 1. **MCP Tools Layer** (`src/tools.jl`)
-   - Defines 8 MCP tools as `MCPTool` constants
+   - Defines 7 MCP tools as `MCPTool` constants
    - Tool naming convention: `list_testfiles`, `run_testfiles` (no underscores in "testfiles")
    - Each tool links to a handler function
 
@@ -63,7 +62,6 @@ julia --project=docs docs/make.jl
 ### Key Utilities (`src/utils.jl`)
 
 - `detect_package()` - Detects current Julia package using TestPicker
-- `activate_package(pkg_dir)` - Activates a different package environment using `Pkg.activate()`
 - `to_json(data)` - Converts data to JSON-wrapped TextContent
 - `filter_files(files, query)` - Fuzzy file filtering
 - `parse_results_file(pkg)` - Parses TestPicker results into structured failures/errors
@@ -146,10 +144,19 @@ All handlers should:
 
 ### Testing This Server
 
-When testing changes to TestPickerMCPServer itself, the server needs to be running. Two approaches:
+**Test Fixtures:**
+- `test/fixtures/DummyPackage` - Test fixture package with known test structure (4 files, 34 testsets)
+- Used by `test_integration.jl` for predictable, comprehensive integration testing
 
-1. **Self-hosted**: Start server from dev environment, use its own tools
-2. **External package**: Test with a different Julia package
+**Test Helpers:**
+- `with_dummy_pkg(f)` - Activates DummyPackage, sets SERVER_PKG[], cleans up after
+- `without_recording_tests(f)` - Runs code without recording test results (prevents pollution)
+
+When testing changes to TestPickerMCPServer itself:
+
+1. **Unit tests**: `test_handlers_unit.jl` tests handlers on TestPickerMCPServer package
+2. **Integration tests**: `test_integration.jl` uses DummyPackage fixture for comprehensive workflows
+3. **HTTP tests**: `test_server_http.jl` starts actual HTTP server on background thread
 
 ### Documentation
 
@@ -186,7 +193,7 @@ value = get_config("key", default_value)
 ### Package Environment Switching
 
 ```julia
-# In handlers
-activate_package(new_dir)  # Activates environment
+# In start_server or activate_package handler
+Pkg.activate(pkg_dir)  # Activates environment
 SERVER_PKG[] = detect_package()  # Re-detects package
 ```

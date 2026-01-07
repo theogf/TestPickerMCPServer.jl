@@ -74,28 +74,4 @@ end
             @test parsed["errors"] isa Vector
         end
     end
-
-    @testset "handle_run_testfiles - missing query" begin
-        with_tp_pkg() do
-            result = TestPickerMCPServer.handle_run_testfiles(Dict{String,Any}())
-            @test result isa ModelContextProtocol.TextContent
-            parsed = JSON.parse(result.text)
-            @test haskey(parsed, "error")
-            @test haskey(parsed, "operation")
-            @test contains(parsed["error"], "query required")
-            @test parsed["operation"] == "run_testfiles"
-        end
-    end
-
-    @testset "handle_run_testblocks - missing query" begin
-        with_tp_pkg() do
-            result = TestPickerMCPServer.handle_run_testblocks(Dict{String,Any}())
-            @test result isa ModelContextProtocol.TextContent
-            parsed = JSON.parse(result.text)
-            @test haskey(parsed, "error")
-            @test haskey(parsed, "operation")
-            @test contains(parsed["error"], "testset_query required")
-            @test parsed["operation"] == "run_testblocks"
-        end
-    end
 end

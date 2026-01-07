@@ -24,7 +24,7 @@ module TestPickerMCPServer
 # Dependencies
 using ModelContextProtocol
 using TestPicker
-using TestPicker: INTERFACES
+using TestPicker: INTERFACES, TestBlockInfo
 using Pkg
 using JSON
 using Preferences
@@ -53,9 +53,61 @@ function get_config(key::String, default)
 end
 
 """
+    create_server(pkg_dir::String=pwd())
+
+Create and configure the TestPicker MCP server without starting it.
+
+# Arguments
+- `pkg_dir::String`: Path to the Julia package directory (defaults to current directory).
+  The package environment will be automatically activated.
+
+Configuration is read with the following precedence:
+1. **Preferences.jl** (persistent, set via `set_preferences!`)
+2. **Environment variables** (TESTPICKER_MCP_TRANSPORT, etc.)
+3. **Default values**
+
+Available settings:
+- `transport`: "stdio" (default) or "http"
+- `host`: HTTP host (default: "127.0.0.1")
+- `port`: HTTP port (default: 3000)
+
+Returns the configured server object (not started).
+"""
+function create_server(pkg_dir::String = pwd())
+    # Activate the package environment
+    Pkg.activate(pkg_dir)
+
+    # Detect and cache package
+    SERVER_PKG[] = detect_package()
+
+    # Create server
+    server = mcp_server(
+        name = "testpicker",
+        version = "0.1.0",
+        description = "MCP interface for TestPicker.jl",
+        tools = ALL_TOOLS,
+    )
+
+    # Get configuration with Preferences > ENV > defaults
+    transport_type = lowercase(string(get_config("transport", "stdio")))
+
+    # Configure transport
+    if transport_type == "http"
+        host = string(get_config("host", "127.0.0.1"))
+        port = parse(Int, string(get_config("port", "3000")))
+
+        transport = HttpTransport(; host, port)
+        server.transport = transport
+        connect(transport)
+    end
+
+    return server
+end
+
+"""
     start_server(pkg_dir::String=pwd())
 
-Start the TestPicker MCP server for the specified package directory.
+Create, configure, and start the TestPicker MCP server for the specified package directory.
 
 # Arguments
 - `pkg_dir::String`: Path to the Julia package directory (defaults to current directory).
@@ -96,38 +148,19 @@ set_preferences!(TestPickerMCPServer, "transport" => "http", "port" => 3000)
 start_server()
 ```
 
-This function blocks until the server is stopped.
+This function blocks until the server is stopped. Returns the server object.
 """
 function start_server(pkg_dir::String = pwd())
-    # Activate the package environment if a directory is specified
-    activate_package(pkg_dir)
+    server = create_server(pkg_dir)
 
-    # Detect and cache package
-    SERVER_PKG[] = detect_package()
-
-    # Create server
-    server = mcp_server(
-        name = "testpicker",
-        version = "0.1.0",
-        description = "MCP interface for TestPicker.jl",
-        tools = ALL_TOOLS,
-    )
-
-    # Get configuration with Preferences > ENV > defaults
-    transport_type = lowercase(string(get_config("transport", "stdio")))
-
-    # Transport selection
-    if transport_type == "http"
-        host = string(get_config("host", "127.0.0.1"))
-        port = parse(Int, string(get_config("port", "3000")))
-
-        transport = HttpTransport(; host, port)
-        server.transport = transport
-        connect(transport)
-        start!(server; transport)
+    # Start the server (this blocks)
+    if !isnothing(server.transport) && server.transport isa HttpTransport
+        start!(server; transport = server.transport)
     else
         start!(server)
     end
+
+    return server
 end
 
 

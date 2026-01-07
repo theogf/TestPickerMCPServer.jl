@@ -27,11 +27,11 @@ function handle_list_testblocks(params::Dict{String,Any})
         test_dir, files = TestPicker.get_testfiles(SERVER_PKG[])
         files = filter_files(files, get(params, "file_query", ""))
 
-        blocks = []
+        blocks = Dict{String,Any}[]
         for file in files
             try
                 for block in TestPicker.get_testblocks(INTERFACES, joinpath(test_dir, file))
-                    info = block.info
+                    info = TestBlockInfo(block, file)
                     push!(
                         blocks,
                         Dict(
