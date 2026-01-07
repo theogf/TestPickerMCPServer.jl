@@ -63,7 +63,6 @@ julia --project=docs docs/make.jl
 ### Key Utilities (`src/utils.jl`)
 
 - `detect_package()` - Detects current Julia package using TestPicker
-- `activate_package(pkg_dir)` - Activates a different package environment using `Pkg.activate()`
 - `to_json(data)` - Converts data to JSON-wrapped TextContent
 - `filter_files(files, query)` - Fuzzy file filtering
 - `parse_results_file(pkg)` - Parses TestPicker results into structured failures/errors
