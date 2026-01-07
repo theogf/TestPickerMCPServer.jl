@@ -24,7 +24,7 @@ module TestPickerMCPServer
 # Dependencies
 using ModelContextProtocol
 using TestPicker
-using TestPicker: INTERFACES
+using TestPicker: INTERFACES, TestBlockInfo
 using Pkg
 using JSON
 using Preferences
