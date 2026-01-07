@@ -1,4 +1,5 @@
 using TestPickerMCPServer
+using ModelContextProtocol
 using Test
 using JSON
 using Pkg
@@ -8,35 +9,44 @@ using HTTP.Sockets
 """
 Helper function to start the server on a background thread and interact with it via HTTP.
 """
-function with_server(f, pkg_dir::String = pwd(); host::String = "127.0.0.1", port::Int = 8765)
-    # Configure server for HTTP transport
-    ENV["TESTPICKER_MCP_TRANSPORT"] = "http"
-    ENV["TESTPICKER_MCP_HOST"] = host
-    ENV["TESTPICKER_MCP_PORT"] = string(port)
+function with_server(
+    f,
+    pkg_dir::String = pwd();
+    host::String = "127.0.0.1",
+    port::Int = 8765,
+)
+    # Create server with environment variables set
+    server = withenv(
+        "TESTPICKER_MCP_TRANSPORT" => "http",
+        "TESTPICKER_MCP_HOST" => host,
+        "TESTPICKER_MCP_PORT" => string(port),
+    ) do
+        TestPickerMCPServer.create_server(pkg_dir)
+    end
 
     # Start server on a background thread
-    server_task = Threads.@async begin
+    server_task = Threads.@spawn begin
         try
-            TestPickerMCPServer.start_server(pkg_dir)
+            start!(server; transport = server.transport)
         catch e
-            # Server may exit via signal or error, that's okay
             @warn "Server error: $e"
         end
     end
 
-    # Give server time to start
+    # Give server time to fully initialize
     sleep(2)
 
     try
         f(host, port)
     finally
-        # Try to stop the server gracefully
+        # Stop the server gracefully
         try
-            # Signal the server task to stop (it will be interrupted)
-            schedule(server_task, InterruptException(); error=true)
-        catch
-            # If that fails, just let it run in the background
+            ModelContextProtocol.stop!(server)
+        catch e
+            @warn "Error stopping server: $e"
         end
+        # Clean up
+        TestPickerMCPServer.SERVER_PKG[] = nothing
         sleep(0.5)
     end
 end
@@ -44,24 +54,25 @@ end
 """
 Helper function to send an MCP tool call via HTTP.
 """
-function call_mcp_tool(host::String, port::Int, tool_name::String, params::Dict{String,Any} = Dict{String,Any}())
+function call_mcp_tool(
+    host::String,
+    port::Int,
+    tool_name::String,
+    params::Dict{String,Any} = Dict{String,Any}(),
+)
     url = "http://$host:$port/mcp/call"
 
     # MCP request format
-    request_body = Dict(
-        "jsonrpc" => "2.0",
-        "id" => "1",
-        "method" => tool_name,
-        "params" => params,
-    )
+    request_body =
+        Dict("jsonrpc" => "2.0", "id" => "1", "method" => tool_name, "params" => params)
 
     try
         response = HTTP.post(
             url,
             ["Content-Type" => "application/json"],
             JSON.json(request_body);
-            timeout=5,
-            retry=false,
+            timeout = 5,
+            retry = false,
         )
 
         if response.status == 200
@@ -188,10 +199,7 @@ end
                     host,
                     port,
                     "run_testblocks",
-                    Dict{String,Any}(
-                        "file_query" => "basic",
-                        "testset_query" => "String",
-                    ),
+                    Dict{String,Any}("file_query" => "basic", "testset_query" => "String"),
                 )
 
                 @test haskey(response, "result")
@@ -214,12 +222,7 @@ end
                 )
 
                 # Then get results
-                response = call_mcp_tool(
-                    host,
-                    port,
-                    "get_testresults",
-                    Dict{String,Any}(),
-                )
+                response = call_mcp_tool(host, port, "get_testresults", Dict{String,Any}())
 
                 @test haskey(response, "result")
                 result = response["result"]
@@ -232,12 +235,7 @@ end
         with_server(dummy_pkg_path; port = 8773) do host, port
             redirect_stderr(devnull) do
                 # Test run_testfiles without required query parameter
-                response = call_mcp_tool(
-                    host,
-                    port,
-                    "run_testfiles",
-                    Dict{String,Any}(),
-                )
+                response = call_mcp_tool(host, port, "run_testfiles", Dict{String,Any}())
 
                 @test haskey(response, "error")
                 @test contains(response["error"], "query required")
@@ -277,12 +275,7 @@ end
                 @test response["result"]["status"] in ["completed", "failed"]
 
                 # Step 4: Get results
-                response = call_mcp_tool(
-                    host,
-                    port,
-                    "get_testresults",
-                    Dict{String,Any}(),
-                )
+                response = call_mcp_tool(host, port, "get_testresults", Dict{String,Any}())
                 @test haskey(response["result"], "count")
             end
         end
