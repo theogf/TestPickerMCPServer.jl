@@ -108,6 +108,9 @@ function call_mcp_tool(
 )
     url = "http://$host:$port/"
 
+    # Use monotonically increasing counter for request ID
+    request_id = string(time_ns())
+
     # MCP tools/call request format
     request_body = Dict(
         "jsonrpc" => "2.0",
@@ -116,7 +119,7 @@ function call_mcp_tool(
             "name" => tool_name,
             "arguments" => params
         ),
-        "id" => rand(1:100000)
+        "id" => request_id
     )
 
     try
