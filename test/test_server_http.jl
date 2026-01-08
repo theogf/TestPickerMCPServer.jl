@@ -97,6 +97,20 @@ function initialize_mcp_session(host::String, port::Integer)
 end
 
 """
+Helper to parse MCP response content from tool calls.
+Returns the parsed JSON from the content field.
+"""
+function parse_mcp_response(response)
+    @assert haskey(response, "content") "Response missing content field"
+    content = response["content"][1]
+    @assert content["type"] == "text" "Expected text content"
+    return JSON.parse(content["text"])
+end
+
+# Atomic counter for request IDs to ensure uniqueness
+const REQUEST_ID_COUNTER = Threads.Atomic{Int}(0)
+
+"""
 Helper function to send an MCP tool call via HTTP.
 """
 function call_mcp_tool(
@@ -108,8 +122,8 @@ function call_mcp_tool(
 )
     url = "http://$host:$port/"
 
-    # Use monotonically increasing counter for request ID
-    request_id = string(time_ns())
+    # Use atomic counter for guaranteed unique request IDs
+    request_id = string(Threads.atomic_add!(REQUEST_ID_COUNTER, 1))
 
     # MCP tools/call request format
     request_body = Dict(
@@ -166,10 +180,7 @@ end
                 session_id = initialize_mcp_session(host, port)
                 response = call_mcp_tool(host, port, session_id, "list_testfiles", Dict{String,Any}())
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                @test content["type"] == "text"
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 4
                 @test "test_basic.jl" in result["files"]
                 @test "test_math.jl" in result["files"]
@@ -184,10 +195,7 @@ end
                 session_id = initialize_mcp_session(host, port)
                 response = call_mcp_tool(host, port, session_id, "list_testblocks", Dict{String,Any}())
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                @test content["type"] == "text"
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 34
                 @test isa(result["testblocks"], Vector)
                 @test length(result["testblocks"]) == 34
@@ -215,9 +223,7 @@ end
                     Dict{String,Any}("query" => "basic"),
                 )
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 1
                 @test "test_basic.jl" in result["files"]
             end
@@ -236,9 +242,7 @@ end
                     Dict{String,Any}("file_query" => "math"),
                 )
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 13
             end
         end
@@ -250,9 +254,7 @@ end
                 session_id = initialize_mcp_session(host, port)
                 response = call_mcp_tool(host, port, session_id, "run_all_tests", Dict{String,Any}())
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "status")
                 @test result["status"] in ["completed", "failed"]
             end
@@ -271,9 +273,7 @@ end
                     Dict{String,Any}("query" => "test_basic"),
                 )
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "status")
                 @test result["status"] in ["completed", "failed"]
             end
@@ -292,9 +292,7 @@ end
                     Dict{String,Any}("file_query" => "basic", "testset_query" => "String"),
                 )
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "status")
                 @test result["status"] in ["completed", "failed"]
             end
@@ -317,9 +315,7 @@ end
                 # Then get results
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "count")
             end
         end
@@ -332,10 +328,7 @@ end
                 # Test run_testfiles without required query parameter
                 response = call_mcp_tool(host, port, session_id, "run_testfiles", Dict{String,Any}())
 
-                # Errors are returned in content as JSON with an "error" field
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "error")
                 @test contains(result["error"], "query required")
 
@@ -348,9 +341,7 @@ end
                     Dict{String,Any}("file_query" => "basic"),
                 )
 
-                @test haskey(response, "content")
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "error")
                 @test contains(result["error"], "testset_query required")
             end
@@ -363,14 +354,12 @@ end
                 session_id = initialize_mcp_session(host, port)
                 # Step 1: List files
                 response = call_mcp_tool(host, port, session_id, "list_testfiles", Dict{String,Any}())
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 4
 
                 # Step 2: List testblocks
                 response = call_mcp_tool(host, port, session_id, "list_testblocks", Dict{String,Any}())
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["count"] == 34
 
                 # Step 3: Run a test file
@@ -381,14 +370,12 @@ end
                     "run_testfiles",
                     Dict{String,Any}("query" => "test_basic"),
                 )
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test result["status"] in ["completed", "failed"]
 
                 # Step 4: Get results
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
-                content = response["content"][1]
-                result = JSON.parse(content["text"])
+                result = parse_mcp_response(response)
                 @test haskey(result, "count")
             end
         end
