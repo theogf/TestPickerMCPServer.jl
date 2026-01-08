@@ -15,21 +15,25 @@ function with_server(
     host::String = "127.0.0.1",
     port::Integer = 8765,
 )
-    # Create server with environment variables set
-    server = withenv(
-        "TESTPICKER_MCP_TRANSPORT" => "http",
-        "TESTPICKER_MCP_HOST" => host,
-        "TESTPICKER_MCP_PORT" => string(port),
-    ) do
-        TestPickerMCPServer.create_server(pkg_dir)
+    # Create server with environment variables set, and redirect stderr to suppress JSON-RPC notifications
+    server = redirect_stderr(devnull) do
+        withenv(
+            "TESTPICKER_MCP_TRANSPORT" => "http",
+            "TESTPICKER_MCP_HOST" => host,
+            "TESTPICKER_MCP_PORT" => string(port),
+        ) do
+            TestPickerMCPServer.create_server(pkg_dir)
+        end
     end
 
-    # Start server on a background thread
+    # Start server on a background thread with stderr redirected
     server_task = Threads.@spawn begin
-        try
-            start!(server; transport = server.transport)
-        catch e
-            @warn "Server error: $e"
+        redirect_stderr(devnull) do
+            try
+                start!(server; transport = server.transport)
+            catch e
+                # Silently ignore errors during shutdown
+            end
         end
     end
 
@@ -43,7 +47,7 @@ function with_server(
         try
             ModelContextProtocol.stop!(server)
         catch e
-            @warn "Error stopping server: $e"
+            # Silently ignore errors during shutdown
         end
         # Clean up
         TestPickerMCPServer.SERVER_PKG[] = nothing
