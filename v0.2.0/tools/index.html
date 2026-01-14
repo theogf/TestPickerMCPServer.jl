@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>MCP Tools Reference · TestPickerMCPServer.jl</title><meta name="title" content="MCP Tools Reference · TestPickerMCPServer.jl"/><meta property="og:title" content="MCP Tools Reference · TestPickerMCPServer.jl"/><meta property="twitter:title" content="MCP Tools Reference · TestPickerMCPServer.jl"/><meta name="description" content="Documentation for TestPickerMCPServer.jl."/><meta property="og:description" content="Documentation for TestPickerMCPServer.jl."/><meta property="twitter:description" content="Documentation for TestPickerMCPServer.jl."/><meta property="og:url" content="https://theogf.github.io/TestPickerMCPServer.jl/tools/"/><meta property="twitter:url" content="https://theogf.github.io/TestPickerMCPServer.jl/tools/"/><link rel="canonical" href="https://theogf.github.io/TestPickerMCPServer.jl/tools/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">TestPickerMCPServer.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">TestPickerMCPServer</a></li><li><a class="tocitem" href="../95-reference/">Reference</a></li><li><a class="tocitem" href="../claude-code/">Claude Code Integration</a></li><li><a class="tocitem" href="../claude-desktop/">Claude Desktop Integration</a></li><li><a class="tocitem" href="../config/">Configuration</a></li><li><a class="tocitem" href="../examples/">Usage Examples</a></li><li class="is-active"><a class="tocitem" href>MCP Tools Reference</a><ul class="internal"><li><a class="tocitem" href="#1.-list_testfiles"><span>1. list_testfiles</span></a></li><li><a class="tocitem" href="#2.-list_testblocks"><span>2. list_testblocks</span></a></li><li><a class="tocitem" href="#3.-run*all*tests"><span>3. run<em>all</em>tests</span></a></li><li><a class="tocitem" href="#4.-run_testfiles"><span>4. run_testfiles</span></a></li><li><a class="tocitem" href="#5.-run_testblocks"><span>5. run_testblocks</span></a></li><li><a class="tocitem" href="#6.-get_testresults"><span>6. get_testresults</span></a></li><li><a class="tocitem" href="#Tool-Workflow-Examples"><span>Tool Workflow Examples</span></a></li></ul></li><li><a class="tocitem" href="../troubleshooting/">Troubleshooting</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>MCP Tools Reference</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>MCP Tools Reference</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/theogf/TestPickerMCPServer.jl/blob/main/docs/src/tools.md#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="MCP-Tools-Reference"><a class="docs-heading-anchor" href="#MCP-Tools-Reference">MCP Tools Reference</a><a id="MCP-Tools-Reference-1"></a><a class="docs-heading-anchor-permalink" href="#MCP-Tools-Reference" title="Permalink"></a></h1><p>TestPickerMCPServer exposes 7 tools via the Model Context Protocol.</p><h2 id="1.-list_testfiles"><a class="docs-heading-anchor" href="#1.-list_testfiles">1. list_testfiles</a><a id="1.-list_testfiles-1"></a><a class="docs-heading-anchor-permalink" href="#1.-list_testfiles" title="Permalink"></a></h2><p>List all test files in the current package.</p><p><strong>Parameters:</strong></p><ul><li><code>query</code> (string, optional): Fuzzy query to filter files</li></ul><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;test_dir&quot;: &quot;/absolute/path/to/test&quot;,
+  &quot;files&quot;: [&quot;runtests.jl&quot;, &quot;test_feature.jl&quot;],
+  &quot;count&quot;: 2
+}</code></pre><p><strong>Example:</strong></p><pre><code class="language-json hljs">// List all test files
+{&quot;query&quot;: &quot;&quot;}
+
+// Filter for files containing &quot;feature&quot;
+{&quot;query&quot;: &quot;feature&quot;}</code></pre><hr/><h2 id="2.-list_testblocks"><a class="docs-heading-anchor" href="#2.-list_testblocks">2. list_testblocks</a><a id="2.-list_testblocks-1"></a><a class="docs-heading-anchor-permalink" href="#2.-list_testblocks" title="Permalink"></a></h2><p>List all @testset blocks in test files.</p><p><strong>Parameters:</strong></p><ul><li><code>file_query</code> (string, optional): Filter which files to scan (empty = all files)</li></ul><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;testblocks&quot;: [
+    {
+      &quot;label&quot;: &quot;Feature Tests&quot;,
+      &quot;file&quot;: &quot;test_feature.jl&quot;,
+      &quot;line_start&quot;: 10,
+      &quot;line_end&quot;: 25
+    }
+  ],
+  &quot;count&quot;: 1
+}</code></pre><p><strong>Example:</strong></p><pre><code class="language-json hljs">// List all testsets
+{&quot;file_query&quot;: &quot;&quot;}
+
+// List testsets only in files matching &quot;utils&quot;
+{&quot;file_query&quot;: &quot;utils&quot;}</code></pre><hr/><h2 id="3.-run*all*tests"><a class="docs-heading-anchor" href="#3.-run*all*tests">3. run<em>all</em>tests</a><a id="3.-run*all*tests-1"></a><a class="docs-heading-anchor-permalink" href="#3.-run*all*tests" title="Permalink"></a></h2><p>Run the entire test suite.</p><p><strong>Parameters:</strong> None</p><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;files_run&quot;: 5,
+  &quot;failures&quot;: 0
+}</code></pre><p><strong>Notes:</strong></p><ul><li>Runs all tests in the package&#39;s <code>test/</code> directory</li><li>Use <code>get_testresults</code> after to see failures/errors</li></ul><hr/><h2 id="4.-run_testfiles"><a class="docs-heading-anchor" href="#4.-run_testfiles">4. run_testfiles</a><a id="4.-run_testfiles-1"></a><a class="docs-heading-anchor-permalink" href="#4.-run_testfiles" title="Permalink"></a></h2><p>Run specific test file(s) matched by query.</p><p><strong>Parameters:</strong></p><ul><li><code>query</code> (string, required): Fuzzy query to match files</li></ul><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;files_run&quot;: [&quot;test_feature.jl&quot;, &quot;test_utils.jl&quot;]
+}</code></pre><p><strong>Example:</strong></p><pre><code class="language-json hljs">// Run files matching &quot;feature&quot;
+{&quot;query&quot;: &quot;feature&quot;}
+
+// Run files matching &quot;test&quot;
+{&quot;query&quot;: &quot;test&quot;}</code></pre><p><strong>Error Response:</strong></p><pre><code class="language-json hljs">// If no matches found
+&quot;No matches for &#39;nonexistent&#39;&quot;</code></pre><hr/><h2 id="5.-run_testblocks"><a class="docs-heading-anchor" href="#5.-run_testblocks">5. run_testblocks</a><a id="5.-run_testblocks-1"></a><a class="docs-heading-anchor-permalink" href="#5.-run_testblocks" title="Permalink"></a></h2><p>Run specific @testset blocks by query.</p><p><strong>Parameters:</strong></p><ul><li><code>file_query</code> (string, optional): Filter files first</li><li><code>testset_query</code> (string, required): Match testset names</li></ul><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;status&quot;: &quot;completed&quot;
+}</code></pre><p><strong>Example:</strong></p><pre><code class="language-json hljs">// Run all testsets matching &quot;edge cases&quot;
+{
+  &quot;file_query&quot;: &quot;&quot;,
+  &quot;testset_query&quot;: &quot;edge cases&quot;
+}
+
+// Run testsets matching &quot;performance&quot; in files matching &quot;utils&quot;
+{
+  &quot;file_query&quot;: &quot;utils&quot;,
+  &quot;testset_query&quot;: &quot;performance&quot;
+}</code></pre><hr/><h2 id="6.-get_testresults"><a class="docs-heading-anchor" href="#6.-get_testresults">6. get_testresults</a><a id="6.-get_testresults-1"></a><a class="docs-heading-anchor-permalink" href="#6.-get_testresults" title="Permalink"></a></h2><p>Retrieve detailed failures and errors from the last test run.</p><p><strong>Parameters:</strong> None</p><p><strong>Returns:</strong></p><pre><code class="language-json hljs">{
+  &quot;failures&quot;: [
+    {
+      &quot;test&quot;: &quot;@test foo == bar&quot;,
+      &quot;file&quot;: &quot;test_feature.jl:15&quot;,
+      &quot;error&quot;: &quot;Expected: bar\nGot: baz&quot;,
+      &quot;context&quot;: &quot;Feature Tests&quot;
+    }
+  ],
+  &quot;errors&quot;: [
+    {
+      &quot;test&quot;: &quot;Exception in test block&quot;,
+      &quot;file&quot;: &quot;test_utils.jl:42&quot;,
+      &quot;error&quot;: &quot;UndefVarError: x not defined\n  [1] ...&quot;,
+      &quot;context&quot;: &quot;test_utils.jl&quot;
+    }
+  ],
+  &quot;count&quot;: {
+    &quot;failures&quot;: 1,
+    &quot;errors&quot;: 1,
+    &quot;total&quot;: 2
+  }
+}</code></pre><p><strong>Notes:</strong></p><ul><li>Returns empty arrays if all tests passed</li><li><strong>failures</strong>: Test assertion failures (@test failures)</li><li><strong>errors</strong>: Exceptions during test execution</li><li>Results persist until next test run</li></ul><h2 id="Tool-Workflow-Examples"><a class="docs-heading-anchor" href="#Tool-Workflow-Examples">Tool Workflow Examples</a><a id="Tool-Workflow-Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Tool-Workflow-Examples" title="Permalink"></a></h2><h3 id="Discover-and-Run-Workflow"><a class="docs-heading-anchor" href="#Discover-and-Run-Workflow">Discover and Run Workflow</a><a id="Discover-and-Run-Workflow-1"></a><a class="docs-heading-anchor-permalink" href="#Discover-and-Run-Workflow" title="Permalink"></a></h3><pre><code class="language-json hljs">// 1. List all test files
+list_testfiles({})
+
+// 2. List testsets in specific file
+list_testblocks({&quot;file_query&quot;: &quot;feature&quot;})
+
+// 3. Run specific testset
+run_testblocks({&quot;file_query&quot;: &quot;feature&quot;, &quot;testset_query&quot;: &quot;edge cases&quot;})
+
+// 4. Check results
+get_testresults({})</code></pre><h3 id="Debug-Failing-Tests-Workflow"><a class="docs-heading-anchor" href="#Debug-Failing-Tests-Workflow">Debug Failing Tests Workflow</a><a id="Debug-Failing-Tests-Workflow-1"></a><a class="docs-heading-anchor-permalink" href="#Debug-Failing-Tests-Workflow" title="Permalink"></a></h3><pre><code class="language-json hljs">// 1. Run all tests
+run_all_tests({})
+
+// 2. Get failures
+get_testresults({})
+// See which file has failures
+
+// 3. Re-run just that file
+run_testfiles({&quot;query&quot;: &quot;feature&quot;})
+
+// 4. Get updated results
+get_testresults({})</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../examples/">« Usage Examples</a><a class="docs-footer-nextpage" href="../troubleshooting/">Troubleshooting »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 14 January 2026 13:25">Wednesday 14 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
