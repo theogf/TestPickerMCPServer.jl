@@ -141,12 +141,12 @@ using Base: with_logger, NullLogger
         using TestPicker
         
         # Mock EvalResult objects for testing
-        # We need to construct these using the actual TestPicker types
-        success_info = TestPicker.TestFileInfo("test_pass.jl")
-        failure_info = TestPicker.TestFileInfo("test_fail.jl")
+        # EvalResult constructor: EvalResult(success::Bool, info::TestInfo, result::T)
+        success_info = TestPicker.TestInfo("test_pass.jl", "", 1)
+        failure_info = TestPicker.TestInfo("test_fail.jl", "", 1)
         
-        success_result = TestPicker.EvalResult(success_info, true)
-        failure_result = TestPicker.EvalResult(failure_info, false)
+        success_result = TestPicker.EvalResult(true, success_info, nothing)
+        failure_result = TestPicker.EvalResult(false, failure_info, nothing)
         
         # Test with all passing results
         results_passing = [success_result]
@@ -178,11 +178,12 @@ using Base: with_logger, NullLogger
         using TestPicker
         
         # Mock EvalResult objects for test blocks
-        success_info = TestPicker.TestInfo("Passing Test", "test.jl", 1)
-        failure_info = TestPicker.TestInfo("Failing Test", "test.jl", 10)
+        # EvalResult constructor: EvalResult(success::Bool, info::TestInfo, result::T)
+        success_info = TestPicker.TestInfo("test.jl", "Passing Test", 1)
+        failure_info = TestPicker.TestInfo("test.jl", "Failing Test", 10)
         
-        success_result = TestPicker.EvalResult(success_info, true)
-        failure_result = TestPicker.EvalResult(failure_info, false)
+        success_result = TestPicker.EvalResult(true, success_info, nothing)
+        failure_result = TestPicker.EvalResult(false, failure_info, nothing)
         
         # Test with all passing results
         results_passing = [success_result]
