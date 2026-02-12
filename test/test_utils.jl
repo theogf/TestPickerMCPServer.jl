@@ -136,4 +136,77 @@ using Base: with_logger, NullLogger
         @test result["count"]["failures"] == length(result["failures"])
         @test result["count"]["errors"] == length(result["errors"])
     end
+
+    @testset "format_file_results - status reporting" begin
+        using TestPicker
+        
+        # Mock EvalResult objects for testing
+        # We need to construct these using the actual TestPicker types
+        success_info = TestPicker.TestFileInfo("test_pass.jl")
+        failure_info = TestPicker.TestFileInfo("test_fail.jl")
+        
+        success_result = TestPicker.EvalResult(success_info, true)
+        failure_result = TestPicker.EvalResult(failure_info, false)
+        
+        # Test with all passing results
+        results_passing = [success_result]
+        formatted = TestPickerMCPServer.format_file_results(results_passing)
+        @test formatted["status"] == "completed"
+        @test formatted["count"] == 1
+        @test formatted["files_run"][1]["success"] == true
+        
+        # Test with failing results
+        results_failing = [failure_result]
+        formatted = TestPickerMCPServer.format_file_results(results_failing)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 1
+        @test formatted["files_run"][1]["success"] == false
+        
+        # Test with mixed results (at least one failure)
+        results_mixed = [success_result, failure_result]
+        formatted = TestPickerMCPServer.format_file_results(results_mixed)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 2
+        
+        # Test with nothing
+        formatted = TestPickerMCPServer.format_file_results(nothing)
+        @test formatted["status"] == "completed"
+        @test formatted["count"] == 0
+    end
+
+    @testset "format_block_results - status reporting" begin
+        using TestPicker
+        
+        # Mock EvalResult objects for test blocks
+        success_info = TestPicker.TestInfo("Passing Test", "test.jl", 1)
+        failure_info = TestPicker.TestInfo("Failing Test", "test.jl", 10)
+        
+        success_result = TestPicker.EvalResult(success_info, true)
+        failure_result = TestPicker.EvalResult(failure_info, false)
+        
+        # Test with all passing results
+        results_passing = [success_result]
+        formatted = TestPickerMCPServer.format_block_results(results_passing)
+        @test formatted["status"] == "completed"
+        @test formatted["count"] == 1
+        @test formatted["blocks_run"][1]["success"] == true
+        
+        # Test with failing results
+        results_failing = [failure_result]
+        formatted = TestPickerMCPServer.format_block_results(results_failing)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 1
+        @test formatted["blocks_run"][1]["success"] == false
+        
+        # Test with mixed results (at least one failure)
+        results_mixed = [success_result, failure_result]
+        formatted = TestPickerMCPServer.format_block_results(results_mixed)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 2
+        
+        # Test with nothing
+        formatted = TestPickerMCPServer.format_block_results(nothing)
+        @test formatted["status"] == "completed"
+        @test formatted["count"] == 0
+    end
 end

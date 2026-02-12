@@ -179,6 +179,33 @@ end
             @test parsed["status"] in ["completed", "failed"]
             @test length(parsed["files_run"]) == 1
             @test endswith(only(parsed["files_run"])["filename"], "test_basic.jl")
+            
+            # test_basic.jl should pass - status should be "completed"
+            @test parsed["status"] == "completed"
+            @test only(parsed["files_run"])["success"] == true
+        end
+    end
+
+    @testset "Run failing tests workflow" begin
+        with_dummy_pkg() do
+            # Run test_failures.jl which has intentional failures
+            result = without_recording_tests() do
+                TestPickerMCPServer.handle_run_testfiles(
+                    Dict{String,Any}("query" => "test_failures"),
+                )
+            end
+            @test result isa ModelContextProtocol.TextContent
+            parsed = JSON.parse(result.text)
+
+            # Verify run result structure
+            @test haskey(parsed, "status")
+            @test haskey(parsed, "files_run")
+            
+            # test_failures.jl should fail - status should be "failed"
+            @test parsed["status"] == "failed"
+            @test length(parsed["files_run"]) == 1
+            @test endswith(only(parsed["files_run"])["filename"], "test_failures.jl")
+            @test only(parsed["files_run"])["success"] == false
         end
     end
 

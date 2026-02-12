@@ -130,8 +130,14 @@ function format_file_results(results)
         end
     end
 
+    # Determine overall status based on individual test results
+    has_failures = any(results) do r
+        (r isa TestPicker.EvalResult) && !r.success
+    end
+    status = has_failures ? "failed" : "completed"
+
     return Dict(
-        "status" => "completed",
+        "status" => status,
         "files_run" => files_run,
         "count" => length(files_run),
     )
@@ -164,8 +170,14 @@ function format_block_results(results)
         end
     end
 
+    # Determine overall status based on individual test results
+    has_failures = any(results) do r
+        (r isa TestPicker.EvalResult) && !r.success
+    end
+    status = has_failures ? "failed" : "completed"
+
     return Dict(
-        "status" => "completed",
+        "status" => status,
         "blocks_run" => blocks_run,
         "count" => length(blocks_run),
     )
