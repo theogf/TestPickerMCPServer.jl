@@ -3,7 +3,7 @@ using Test
 
 @testset "Tool Definitions" begin
     @testset "All tools defined" begin
-        @test length(TestPickerMCPServer.ALL_TOOLS) == 7
+        @test length(TestPickerMCPServer.ALL_TOOLS) == 8
 
         tool_names = [tool.name for tool in TestPickerMCPServer.ALL_TOOLS]
         @test "list_testfiles" in tool_names
@@ -12,6 +12,7 @@ using Test
         @test "run_testfiles" in tool_names
         @test "run_testblocks" in tool_names
         @test "get_testresults" in tool_names
+        @test "get_package_status" in tool_names
         @test "activate_package" in tool_names
     end
 

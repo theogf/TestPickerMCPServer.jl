@@ -74,4 +74,33 @@ end
             @test parsed["errors"] isa Vector
         end
     end
+
+    @testset "handle_get_package_status" begin
+        # Test with no package active
+        original_pkg = TestPickerMCPServer.SERVER_PKG[]
+        try
+            TestPickerMCPServer.SERVER_PKG[] = nothing
+            result = TestPickerMCPServer.handle_get_package_status(Dict{String,Any}())
+            @test result isa ModelContextProtocol.TextContent
+            parsed = JSON.parse(result.text)
+            @test parsed["status"] == "no_package"
+            @test haskey(parsed, "message")
+            @test contains(parsed["message"], "activate_package")
+        finally
+            TestPickerMCPServer.SERVER_PKG[] = original_pkg
+        end
+
+        # Test with active package
+        with_tp_pkg() do
+            result = TestPickerMCPServer.handle_get_package_status(Dict{String,Any}())
+            @test result isa ModelContextProtocol.TextContent
+            parsed = JSON.parse(result.text)
+            @test parsed["status"] == "active"
+            @test haskey(parsed, "package_name")
+            @test haskey(parsed, "package_uuid")
+            @test haskey(parsed, "package_path")
+            @test haskey(parsed, "package_version")
+            @test parsed["package_name"] == "TestPickerMCPServer"
+        end
+    end
 end

@@ -108,6 +108,18 @@ const TOOL_GET_RESULTS = MCPTool(;
 )
 
 """
+Tool: get_package_status
+
+Get information about the currently active package.
+"""
+const TOOL_GET_PACKAGE_STATUS = MCPTool(;
+    name = "get_package_status",
+    description = "Get the status of the currently active package. Returns package name, UUID, path, and version if a package is active. Returns a 'no_package' status with instructions if no package is currently active.",
+    parameters = [],
+    handler = handle_get_package_status,
+)
+
+"""
 Tool: activate_package
 
 Activate a different Julia package directory.
@@ -136,5 +148,6 @@ const ALL_TOOLS = [
     TOOL_RUN_FILES,
     TOOL_RUN_BLOCKS,
     TOOL_GET_RESULTS,
+    TOOL_GET_PACKAGE_STATUS,
     TOOL_ACTIVATE_PACKAGE,
 ]

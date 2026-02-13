@@ -260,6 +260,7 @@ end
             "run_testfiles",
             "run_testblocks",
             "get_testresults",
+            "get_package_status",
             "activate_package",
         ]
 
