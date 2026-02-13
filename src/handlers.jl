@@ -135,6 +135,36 @@ function handle_get_testresults(params::Dict{String,Any})
 end
 
 """
+    handle_get_package_status(params::Dict{String,Any}) -> Content
+
+Get the status of the currently active package.
+Returns package information if active, or a status indicating no package is active.
+"""
+function handle_get_package_status(params::Dict{String,Any})
+    with_error_handling("get_package_status") do
+        if isnothing(SERVER_PKG[])
+            to_json(
+                Dict(
+                    "status" => "no_package",
+                    "message" => "No package is currently active. Use 'activate_package' to activate a Julia package.",
+                ),
+            )
+        else
+            pkg = SERVER_PKG[]
+            to_json(
+                Dict(
+                    "status" => "active",
+                    "package_name" => pkg.name,
+                    "package_uuid" => string(pkg.uuid),
+                    "package_path" => pkg.path,
+                    "package_version" => string(pkg.version),
+                ),
+            )
+        end
+    end
+end
+
+"""
     handle_activate_package(params::Dict{String,Any}) -> Content
 
 Activate a different package directory and update the server's active package.

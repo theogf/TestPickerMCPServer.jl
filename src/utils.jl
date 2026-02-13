@@ -1,22 +1,21 @@
 """
-    detect_package() -> PackageSpec
+    detect_package() -> Union{PackageSpec, Nothing}
 
 Detect the current Julia package using TestPicker's current_pkg().
-Throws an informative error if not in a package environment.
+Returns nothing if not in a valid package environment.
 """
 function detect_package()
     try
         return TestPicker.current_pkg()
     catch e
         if e isa TestPicker.TestEnvError
-            error("""
-            Failed to detect current package. Please ensure you:
-            1. Are running the MCP server from within a Julia package directory
-            2. Have a valid Project.toml in the current directory
-            3. Have activated the package environment
+            @warn """
+            Failed to detect current package. The server will start without an active package.
+            Use the 'activate_package' tool to specify a valid Julia package directory.
 
             Error details: $(e.msg)
-            """)
+            """
+            return nothing
         else
             rethrow()
         end

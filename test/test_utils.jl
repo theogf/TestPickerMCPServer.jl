@@ -109,6 +109,22 @@ using Base: with_logger, NullLogger
             @test pkg isa Pkg.Types.PackageSpec
             @test !isnothing(pkg.name)
         end
+
+        # Should return nothing when no valid package is found
+        tmp_dir = mktempdir()
+        original_project = Base.active_project()
+        try
+            redirect_stderr(devnull) do
+                Pkg.activate(tmp_dir)
+                with_logger(NullLogger()) do
+                    pkg = TestPickerMCPServer.detect_package()
+                    @test isnothing(pkg)
+                end
+            end
+        finally
+            Pkg.activate(original_project; io=devnull)
+            rm(tmp_dir; recursive=true)
+        end
     end
 
     @testset "parse_results_file - structure validation" begin
