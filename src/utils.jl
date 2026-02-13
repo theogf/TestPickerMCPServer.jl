@@ -12,7 +12,7 @@ function detect_package()
             @warn """
             Failed to detect current package. The server will start without an active package.
             Use the 'activate_package' tool to specify a valid Julia package directory.
-            
+
             Error details: $(e.msg)
             """
             return nothing
