@@ -109,6 +109,18 @@ function parse_results_file(pkg::Union{PackageSpec,Nothing})
 end
 
 """
+    has_test_failures(results) -> Bool
+
+Check if any test result indicates a failure.
+Helper function used by format_file_results and format_block_results.
+"""
+function has_test_failures(results)
+    any(results) do r
+        (r isa TestPicker.EvalResult) && !r.success
+    end
+end
+
+"""
     format_file_results(results) -> Dict
 
 Format test file execution results into a consistent structure.
@@ -130,8 +142,11 @@ function format_file_results(results)
         end
     end
 
+    # Determine overall status based on individual test results
+    status = has_test_failures(results) ? "failed" : "completed"
+
     return Dict(
-        "status" => "completed",
+        "status" => status,
         "files_run" => files_run,
         "count" => length(files_run),
     )
@@ -164,8 +179,11 @@ function format_block_results(results)
         end
     end
 
+    # Determine overall status based on individual test results
+    status = has_test_failures(results) ? "failed" : "completed"
+
     return Dict(
-        "status" => "completed",
+        "status" => status,
         "blocks_run" => blocks_run,
         "count" => length(blocks_run),
     )
