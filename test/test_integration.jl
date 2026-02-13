@@ -391,4 +391,42 @@ end
             end
         end
     end
+
+    @testset "Server creation without valid package" begin
+        # Test that server can be created even when no valid package is detected
+        tmp_dir = mktempdir()
+        try
+            # Save current state
+            original_pkg = TestPickerMCPServer.SERVER_PKG[]
+            original_project = Base.active_project()
+
+            try
+                # Create server in empty directory with no Project.toml
+                server = redirect_stderr(devnull) do
+                    with_logger(NullLogger()) do
+                        TestPickerMCPServer.create_server(tmp_dir)
+                    end
+                end
+
+                # Server should be created successfully
+                @test server isa ModelContextProtocol.Server
+                @test isnothing(TestPickerMCPServer.SERVER_PKG[])
+                
+                # Tools should still be available
+                @test length(server.tools) > 0
+                
+                # Handlers should return appropriate errors when no package is active
+                result = TestPickerMCPServer.handle_list_testfiles(Dict{String,Any}())
+                parsed = JSON.parse(result.text)
+                @test haskey(parsed, "error")
+                @test contains(parsed["error"], "No package activated")
+            finally
+                # Restore original state
+                TestPickerMCPServer.SERVER_PKG[] = original_pkg
+                Pkg.activate(original_project; io=devnull)
+            end
+        finally
+            rm(tmp_dir; recursive=true)
+        end
+    end
 end
