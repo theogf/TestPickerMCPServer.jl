@@ -59,7 +59,9 @@ Create and configure the TestPicker MCP server without starting it.
 
 # Arguments
 - `pkg_dir::String`: Path to the Julia package directory (defaults to current directory).
-  The package environment will be automatically activated.
+  The package environment will be automatically activated. If the directory does not
+  contain a valid Julia package (no Project.toml), the server will start without an
+  active package. You can later activate a package using the `activate_package` tool.
 
 Configuration is read with the following precedence:
 1. **Preferences.jl** (persistent, set via `set_preferences!`)
@@ -111,7 +113,9 @@ Create, configure, and start the TestPicker MCP server for the specified package
 
 # Arguments
 - `pkg_dir::String`: Path to the Julia package directory (defaults to current directory).
-  The package environment will be automatically activated.
+  The package environment will be automatically activated. If the directory does not
+  contain a valid Julia package (no Project.toml), the server will start without an
+  active package. You can later activate a package using the `activate_package` tool.
 
 Configuration is read with the following precedence:
 1. **Preferences.jl** (persistent, set via `set_preferences!`)
