@@ -155,75 +155,83 @@ using Base: with_logger, NullLogger
 
     @testset "format_file_results - status reporting" begin
         using TestPicker
-        
+
         # Mock EvalResult objects for testing
         # EvalResult constructor: EvalResult(success::Bool, info::TestInfo, result::T)
         success_info = TestPicker.TestInfo("test_pass.jl", "", 1)
         failure_info = TestPicker.TestInfo("test_fail.jl", "", 1)
-        
+
         success_result = TestPicker.EvalResult(true, success_info, nothing)
-        failure_result = TestPicker.EvalResult(false, failure_info, nothing)
-        
+        failure_exc = Test.TestSetException(3, 2, 0, 0, [])
+        failure_result = TestPicker.EvalResult(false, failure_info, failure_exc)
+
         # Test with all passing results
         results_passing = [success_result]
         formatted = TestPickerMCPServer.format_file_results(results_passing)
-        @test formatted["status"] == "completed"
+        @test formatted["status"] == "passed"
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == true
-        
+
         # Test with failing results
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_file_results(results_failing)
         @test formatted["status"] == "failed"
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == false
-        
+        @test formatted["files_run"][1]["pass"] == 3
+        @test formatted["files_run"][1]["fail"] == 2
+        @test formatted["files_run"][1]["error"] == 0
+
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
         formatted = TestPickerMCPServer.format_file_results(results_mixed)
         @test formatted["status"] == "failed"
         @test formatted["count"] == 2
-        
+
         # Test with nothing
         formatted = TestPickerMCPServer.format_file_results(nothing)
-        @test formatted["status"] == "completed"
+        @test formatted["status"] == "passed"
         @test formatted["count"] == 0
     end
 
     @testset "format_block_results - status reporting" begin
         using TestPicker
-        
+
         # Mock EvalResult objects for test blocks
         # EvalResult constructor: EvalResult(success::Bool, info::TestInfo, result::T)
         success_info = TestPicker.TestInfo("test.jl", "Passing Test", 1)
         failure_info = TestPicker.TestInfo("test.jl", "Failing Test", 10)
-        
+
         success_result = TestPicker.EvalResult(true, success_info, nothing)
-        failure_result = TestPicker.EvalResult(false, failure_info, nothing)
-        
+        failure_exc = Test.TestSetException(5, 1, 0, 0, [])
+        failure_result = TestPicker.EvalResult(false, failure_info, failure_exc)
+
         # Test with all passing results
         results_passing = [success_result]
         formatted = TestPickerMCPServer.format_block_results(results_passing)
-        @test formatted["status"] == "completed"
+        @test formatted["status"] == "passed"
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == true
-        
+
         # Test with failing results
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_block_results(results_failing)
         @test formatted["status"] == "failed"
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == false
-        
+        @test formatted["blocks_run"][1]["pass"] == 5
+        @test formatted["blocks_run"][1]["fail"] == 1
+        @test formatted["blocks_run"][1]["error"] == 0
+
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
         formatted = TestPickerMCPServer.format_block_results(results_mixed)
         @test formatted["status"] == "failed"
         @test formatted["count"] == 2
-        
+
         # Test with nothing
         formatted = TestPickerMCPServer.format_block_results(nothing)
-        @test formatted["status"] == "completed"
+        @test formatted["status"] == "passed"
         @test formatted["count"] == 0
     end
 end

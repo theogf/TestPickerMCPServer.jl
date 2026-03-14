@@ -28,6 +28,7 @@ using TestPicker: INTERFACES, TestBlockInfo
 using Pkg
 using JSON
 using Preferences
+using Test
 
 "Cache the current package in use."
 const SERVER_PKG = Ref{Union{Nothing,PackageSpec}}(nothing)
