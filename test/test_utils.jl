@@ -172,7 +172,7 @@ using Base: with_logger, NullLogger
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == true
 
-        # Test with failing results
+        # Test with failing results (TestSetException - has counts)
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_file_results(results_failing)
         @test formatted["status"] == "failed"
@@ -181,6 +181,18 @@ using Base: with_logger, NullLogger
         @test formatted["files_run"][1]["pass"] == 3
         @test formatted["files_run"][1]["fail"] == 2
         @test formatted["files_run"][1]["error"] == 0
+
+        # Test with error results (non-TestSetException, e.g. UndefVarError - no counts)
+        error_info = TestPicker.TestInfo("test_error.jl", "", 1)
+        error_result = TestPicker.EvalResult(false, error_info, UndefVarError(:nonexistent_function))
+        results_error = [error_result]
+        formatted = TestPickerMCPServer.format_file_results(results_error)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 1
+        @test formatted["files_run"][1]["success"] == false
+        @test !haskey(formatted["files_run"][1], "pass")
+        @test !haskey(formatted["files_run"][1], "fail")
+        @test !haskey(formatted["files_run"][1], "error")
 
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
@@ -213,7 +225,7 @@ using Base: with_logger, NullLogger
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == true
 
-        # Test with failing results
+        # Test with failing results (TestSetException - has counts)
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_block_results(results_failing)
         @test formatted["status"] == "failed"
@@ -222,6 +234,18 @@ using Base: with_logger, NullLogger
         @test formatted["blocks_run"][1]["pass"] == 5
         @test formatted["blocks_run"][1]["fail"] == 1
         @test formatted["blocks_run"][1]["error"] == 0
+
+        # Test with error results (non-TestSetException, e.g. MethodError - no counts)
+        error_info = TestPicker.TestInfo("test.jl", "Error Block", 20)
+        error_result = TestPicker.EvalResult(false, error_info, MethodError(+, ("a", "b")))
+        results_error = [error_result]
+        formatted = TestPickerMCPServer.format_block_results(results_error)
+        @test formatted["status"] == "failed"
+        @test formatted["count"] == 1
+        @test formatted["blocks_run"][1]["success"] == false
+        @test !haskey(formatted["blocks_run"][1], "pass")
+        @test !haskey(formatted["blocks_run"][1], "fail")
+        @test !haskey(formatted["blocks_run"][1], "error")
 
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
