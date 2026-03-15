@@ -108,14 +108,35 @@ function parse_results_file(pkg::Union{PackageSpec,Nothing})
 end
 
 """
-    has_test_failures(results) -> Bool
+    extract_test_counts(r::TestPicker.EvalResult) -> Union{Dict, Nothing}
 
-Check if any test result indicates a failure.
-Helper function used by format_file_results and format_block_results.
+Extract pass/fail/error/broken counts from an EvalResult when available.
+Returns a Dict with counts if the result contains a TestSetException, nothing otherwise.
 """
-function has_test_failures(results)
-    any(results) do r
-        (r isa TestPicker.EvalResult) && !r.success
+function extract_test_counts(r::TestPicker.EvalResult)
+    r.result isa Test.TestSetException || return nothing
+    exc = r.result
+    return Dict(
+        "pass" => exc.pass,
+        "fail" => exc.fail,
+        "error" => exc.error,
+        "broken" => exc.broken,
+    )
+end
+
+"""
+    eval_result_status(results) -> String
+
+Determine overall status from a collection of EvalResults.
+Returns "passed" or "failed".
+"""
+function eval_result_status(results)
+    if isempty(results)
+        return "no_tests"
+    elseif any(r -> !(r isa TestPicker.EvalResult) || !r.success, results)
+        return "failed"
+    else
+        return "passed"
     end
 end
 
@@ -127,25 +148,22 @@ Handles both successful EvalResult objects and error cases.
 Returns empty structure if results is nothing.
 """
 function format_file_results(results)
-    # Handle case where no results (returns nothing)
-    isnothing(results) && return Dict("status" => "completed", "files_run" => [], "count" => 0)
+    isnothing(results) && return Dict("status" => "completed", "outcome" => "no_tests", "files_run" => [], "count" => 0)
 
-    # Extract file information from EvalResults
     files_run = map(results) do r
-        # Handle different result types (EvalResult, EmptyFile, MissingFileException)
         if r isa TestPicker.EvalResult
-            Dict("filename" => r.info.filename, "success" => r.success)
+            entry = Dict{String,Any}("filename" => r.info.filename, "success" => r.success)
+            counts = extract_test_counts(r)
+            isnothing(counts) || merge!(entry, counts)
+            entry
         else
-            # For error cases (EmptyFile, MissingFileException)
-            Dict("error" => string(r))
+            Dict{String,Any}("error" => string(r))
         end
     end
 
-    # Determine overall status based on individual test results
-    status = has_test_failures(results) ? "failed" : "completed"
-
     return Dict(
-        "status" => status,
+        "status" => "completed",
+        "outcome" => eval_result_status(results),
         "files_run" => files_run,
         "count" => length(files_run),
     )
@@ -159,30 +177,27 @@ Handles both successful EvalResult objects and error cases.
 Returns empty structure if results is nothing.
 """
 function format_block_results(results)
-    # Handle case where no results (returns nothing)
-    isnothing(results) && return Dict("status" => "completed", "blocks_run" => [], "count" => 0)
+    isnothing(results) && return Dict("status" => "completed", "outcome" => "no_tests", "blocks_run" => [], "count" => 0)
 
-    # Extract block information from EvalResults
     blocks_run = map(results) do r
-        # Handle different result types (EvalResult vs error cases)
         if r isa TestPicker.EvalResult
-            Dict(
+            entry = Dict{String,Any}(
                 "label" => r.info.label,
                 "filename" => r.info.filename,
                 "line" => r.info.line,
                 "success" => r.success,
             )
+            counts = extract_test_counts(r)
+            isnothing(counts) || merge!(entry, counts)
+            entry
         else
-            # For error cases
-            Dict("error" => string(r))
+            Dict{String,Any}("error" => string(r))
         end
     end
 
-    # Determine overall status based on individual test results
-    status = has_test_failures(results) ? "failed" : "completed"
-
     return Dict(
-        "status" => status,
+        "status" => "completed",
+        "outcome" => eval_result_status(results),
         "blocks_run" => blocks_run,
         "count" => length(blocks_run),
     )
