@@ -267,8 +267,10 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
+                @test haskey(result, "outcome")
                 # DummyPackage has intentional failures and errors in test_failures.jl
-                @test result["status"] == "failed"
+                @test result["status"] == "completed"
+                @test result["outcome"] == "failed"
             end
         end
     end
@@ -287,7 +289,9 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["passed", "failed"]
+                @test haskey(result, "outcome")
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
             end
         end
     end
@@ -306,7 +310,9 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["passed", "failed"]
+                @test haskey(result, "outcome")
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
             end
         end
     end
@@ -324,7 +330,8 @@ end
                     Dict{String,Any}("query" => "test_failures"),
                 )
                 run_result = parse_mcp_response(run_response)
-                @test run_result["status"] == "failed"
+                @test run_result["status"] == "completed"
+                @test run_result["outcome"] == "failed"
 
                 # Then get results - should contain actual failures and errors
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
@@ -386,7 +393,8 @@ end
                     Dict{String,Any}("query" => "test_basic"),
                 )
                 result = parse_mcp_response(response)
-                @test result["status"] in ["passed", "failed"]
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
 
                 # Step 4: Get results
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())

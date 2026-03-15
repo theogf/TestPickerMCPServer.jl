@@ -133,7 +133,7 @@ Returns "passed" or "failed".
 function eval_result_status(results)
     if isempty(results)
         return "no_tests"
-    elseif any(r -> r isa TestPicker.EvalResult && !r.success, results)
+    elseif any(r -> !(r isa TestPicker.EvalResult) || !r.success, results)
         return "failed"
     else
         return "passed"

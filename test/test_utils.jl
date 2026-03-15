@@ -168,14 +168,16 @@ using Base: with_logger, NullLogger
         # Test with all passing results
         results_passing = [success_result]
         formatted = TestPickerMCPServer.format_file_results(results_passing)
-        @test formatted["status"] == "passed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "passed"
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == true
 
         # Test with failing results (TestSetException - has counts)
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_file_results(results_failing)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == false
         @test formatted["files_run"][1]["pass"] == 3
@@ -187,7 +189,8 @@ using Base: with_logger, NullLogger
         error_result = TestPicker.EvalResult(false, error_info, UndefVarError(:nonexistent_function))
         results_error = [error_result]
         formatted = TestPickerMCPServer.format_file_results(results_error)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 1
         @test formatted["files_run"][1]["success"] == false
         @test !haskey(formatted["files_run"][1], "pass")
@@ -197,12 +200,14 @@ using Base: with_logger, NullLogger
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
         formatted = TestPickerMCPServer.format_file_results(results_mixed)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 2
 
         # Test with nothing
         formatted = TestPickerMCPServer.format_file_results(nothing)
-        @test formatted["status"] == "passed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "no_tests"
         @test formatted["count"] == 0
     end
 
@@ -221,14 +226,16 @@ using Base: with_logger, NullLogger
         # Test with all passing results
         results_passing = [success_result]
         formatted = TestPickerMCPServer.format_block_results(results_passing)
-        @test formatted["status"] == "passed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "passed"
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == true
 
         # Test with failing results (TestSetException - has counts)
         results_failing = [failure_result]
         formatted = TestPickerMCPServer.format_block_results(results_failing)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == false
         @test formatted["blocks_run"][1]["pass"] == 5
@@ -240,7 +247,8 @@ using Base: with_logger, NullLogger
         error_result = TestPicker.EvalResult(false, error_info, MethodError(+, ("a", "b")))
         results_error = [error_result]
         formatted = TestPickerMCPServer.format_block_results(results_error)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 1
         @test formatted["blocks_run"][1]["success"] == false
         @test !haskey(formatted["blocks_run"][1], "pass")
@@ -250,12 +258,14 @@ using Base: with_logger, NullLogger
         # Test with mixed results (at least one failure)
         results_mixed = [success_result, failure_result]
         formatted = TestPickerMCPServer.format_block_results(results_mixed)
-        @test formatted["status"] == "failed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "failed"
         @test formatted["count"] == 2
 
         # Test with nothing
         formatted = TestPickerMCPServer.format_block_results(nothing)
-        @test formatted["status"] == "passed"
+        @test formatted["status"] == "completed"
+        @test formatted["outcome"] == "no_tests"
         @test formatted["count"] == 0
     end
 end
