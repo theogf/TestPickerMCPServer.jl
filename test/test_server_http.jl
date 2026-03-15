@@ -5,6 +5,7 @@ using JSON
 using Pkg
 using HTTP
 using HTTP.Sockets
+using Logging
 
 """
 Helper function to start the server on a background thread and interact with it via HTTP.
@@ -34,7 +35,14 @@ function with_server(
                 try
                     start!(server; transport = server.transport)
                 catch e
-                    # Silently ignore errors during shutdown
+                    # Ignore expected errors during shutdown, surface unexpected ones
+                    if e isa InterruptException
+                        # Normal interruption during shutdown
+                        return
+                    else
+                        @error "Unexpected error while running HTTP test server" exception = (e, catch_backtrace())
+                        rethrow()
+                    end
                 end
             end
         end
