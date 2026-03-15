@@ -183,7 +183,7 @@ end
                 # Success case
                 @test haskey(parsed, "status")
                 @test haskey(parsed, "files_run")
-                @test parsed["status"] in ["completed", "failed"]
+                @test parsed["status"] in ["passed", "failed"]
             end
         end
     end
@@ -339,7 +339,7 @@ end
                 Dict{String,Any}("query" => "test_basic"),
             )
             parsed = JSON.parse(result.text)
-            @test parsed["status"] in ["completed", "failed"]
+            @test parsed["status"] in ["passed", "failed"]
             @test occursin("test_basic.jl", only(parsed["files_run"])["filename"])
 
             # 4. Check results

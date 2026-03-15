@@ -256,7 +256,7 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test result["status"] in ["passed", "failed"]
             end
         end
     end
@@ -275,7 +275,7 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test result["status"] in ["passed", "failed"]
             end
         end
     end
@@ -294,7 +294,7 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test result["status"] in ["passed", "failed"]
             end
         end
     end
@@ -371,7 +371,7 @@ end
                     Dict{String,Any}("query" => "test_basic"),
                 )
                 result = parse_mcp_response(response)
-                @test result["status"] in ["completed", "failed"]
+                @test result["status"] in ["passed", "failed"]
 
                 # Step 4: Get results
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
