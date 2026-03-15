@@ -26,13 +26,16 @@ function with_server(
         end
     end
 
-    # Start server on a background thread with stderr redirected
+    # Start server on a background thread with output redirected to suppress
+    # test output from DummyPackage test runs (intentional failures etc.)
     server_task = Threads.@spawn begin
         redirect_stderr(devnull) do
-            try
-                start!(server; transport = server.transport)
-            catch e
-                # Silently ignore errors during shutdown
+            redirect_stdout(devnull) do
+                try
+                    start!(server; transport = server.transport)
+                catch e
+                    # Silently ignore errors during shutdown
+                end
             end
         end
     end
@@ -256,7 +259,8 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["passed", "failed"]
+                # DummyPackage has intentional failures and errors in test_failures.jl
+                @test result["status"] == "failed"
             end
         end
     end
@@ -303,20 +307,23 @@ end
         with_server(dummy_pkg_path; port = 8772) do host, port
             redirect_stderr(devnull) do
                 session_id = initialize_mcp_session(host, port)
-                # First run a test
-                call_mcp_tool(
+                # First run test_failures.jl which has intentional failures and errors
+                run_response = call_mcp_tool(
                     host,
                     port,
                     session_id,
                     "run_testfiles",
                     Dict{String,Any}("query" => "test_failures"),
                 )
+                run_result = parse_mcp_response(run_response)
+                @test run_result["status"] == "failed"
 
-                # Then get results
+                # Then get results - should contain actual failures and errors
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "count")
+                @test result["count"]["total"] > 0
             end
         end
     end
