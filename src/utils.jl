@@ -148,7 +148,7 @@ Handles both successful EvalResult objects and error cases.
 Returns empty structure if results is nothing.
 """
 function format_file_results(results)
-    isnothing(results) && return Dict("status" => "passed", "files_run" => [], "count" => 0)
+    isnothing(results) && return Dict("status" => "completed", "outcome" => "no_tests", "files_run" => [], "count" => 0)
 
     files_run = map(results) do r
         if r isa TestPicker.EvalResult
@@ -162,7 +162,8 @@ function format_file_results(results)
     end
 
     return Dict(
-        "status" => eval_result_status(results),
+        "status" => "completed",
+        "outcome" => eval_result_status(results),
         "files_run" => files_run,
         "count" => length(files_run),
     )
@@ -176,7 +177,7 @@ Handles both successful EvalResult objects and error cases.
 Returns empty structure if results is nothing.
 """
 function format_block_results(results)
-    isnothing(results) && return Dict("status" => "passed", "blocks_run" => [], "count" => 0)
+    isnothing(results) && return Dict("status" => "completed", "outcome" => "no_tests", "blocks_run" => [], "count" => 0)
 
     blocks_run = map(results) do r
         if r isa TestPicker.EvalResult
@@ -195,7 +196,8 @@ function format_block_results(results)
     end
 
     return Dict(
-        "status" => eval_result_status(results),
+        "status" => "completed",
+        "outcome" => eval_result_status(results),
         "blocks_run" => blocks_run,
         "count" => length(blocks_run),
     )
