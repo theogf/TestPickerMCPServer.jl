@@ -11,7 +11,7 @@ TestPicker = "a64165b9-4409-4de6-85cd-a4e0953bae44"
 [compat]
 HTTP = "1"
 JSON = "1"
-ModelContextProtocol = "0.4"
+ModelContextProtocol = "0.4, 0.5"
 Pkg = "1"
 Preferences = "1"
 TOML = "1"
