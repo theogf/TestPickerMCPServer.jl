@@ -9,7 +9,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestPicker = "a64165b9-4409-4de6-85cd-a4e0953bae44"
 
 [compat]
-HTTP = "1"
+HTTP = "1, 2.2"
 JSON = "1"
 ModelContextProtocol = "0.4"
 Pkg = "1"
