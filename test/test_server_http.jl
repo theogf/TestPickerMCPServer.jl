@@ -5,6 +5,7 @@ using JSON
 using Pkg
 using HTTP
 using HTTP.Sockets
+using Logging
 
 """
 Helper function to start the server on a background thread and interact with it via HTTP.
@@ -26,13 +27,23 @@ function with_server(
         end
     end
 
-    # Start server on a background thread with stderr redirected
+    # Start server on a background thread with output redirected to suppress
+    # test output from DummyPackage test runs (intentional failures etc.)
     server_task = Threads.@spawn begin
         redirect_stderr(devnull) do
-            try
-                start!(server; transport = server.transport)
-            catch e
-                # Silently ignore errors during shutdown
+            redirect_stdout(devnull) do
+                try
+                    start!(server; transport = server.transport)
+                catch e
+                    # Ignore expected errors during shutdown, surface unexpected ones
+                    if e isa InterruptException
+                        # Normal interruption during shutdown
+                        return
+                    else
+                        @error "Unexpected error while running HTTP test server" exception = (e, catch_backtrace())
+                        rethrow()
+                    end
+                end
             end
         end
     end
@@ -256,7 +267,10 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test haskey(result, "outcome")
+                # DummyPackage has intentional failures and errors in test_failures.jl
+                @test result["status"] == "completed"
+                @test result["outcome"] == "failed"
             end
         end
     end
@@ -275,7 +289,9 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test haskey(result, "outcome")
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
             end
         end
     end
@@ -294,7 +310,9 @@ end
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "status")
-                @test result["status"] in ["completed", "failed"]
+                @test haskey(result, "outcome")
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
             end
         end
     end
@@ -303,20 +321,24 @@ end
         with_server(dummy_pkg_path; port = 8772) do host, port
             redirect_stderr(devnull) do
                 session_id = initialize_mcp_session(host, port)
-                # First run a test
-                call_mcp_tool(
+                # First run test_failures.jl which has intentional failures and errors
+                run_response = call_mcp_tool(
                     host,
                     port,
                     session_id,
                     "run_testfiles",
                     Dict{String,Any}("query" => "test_failures"),
                 )
+                run_result = parse_mcp_response(run_response)
+                @test run_result["status"] == "completed"
+                @test run_result["outcome"] == "failed"
 
-                # Then get results
+                # Then get results - should contain actual failures and errors
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
 
                 result = parse_mcp_response(response)
                 @test haskey(result, "count")
+                @test result["count"]["total"] > 0
             end
         end
     end
@@ -371,7 +393,8 @@ end
                     Dict{String,Any}("query" => "test_basic"),
                 )
                 result = parse_mcp_response(response)
-                @test result["status"] in ["completed", "failed"]
+                @test result["status"] == "completed"
+                @test result["outcome"] in ["passed", "failed"]
 
                 # Step 4: Get results
                 response = call_mcp_tool(host, port, session_id, "get_testresults", Dict{String,Any}())
